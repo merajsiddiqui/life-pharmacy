@@ -39,9 +39,16 @@ class AuthService
             'password' => Hash::make($data['password']),
         ]);
 
-        // Assign customer role by default
-        $customerRole = Role::where('slug', 'customer')->first();
-        $user->roles()->attach($customerRole);
+        // Assign role based on user type
+        $roleSlug = $data['user_type'] ?? 'customer';
+        $role = Role::where('slug', $roleSlug)->first();
+        
+        if (!$role) {
+            // Fallback to customer role if specified role doesn't exist
+            $role = Role::where('slug', 'customer')->first();
+        }
+        
+        $user->roles()->attach($role);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 

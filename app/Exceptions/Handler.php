@@ -6,6 +6,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Throwable;
+use Illuminate\Http\Response;
 
 class Handler extends ExceptionHandler
 {
@@ -30,21 +31,7 @@ class Handler extends ExceptionHandler
         });
     }
 
-    /**
-     * Convert an authentication exception into a response.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Auth\AuthenticationException  $exception
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
-     */
-    protected function unauthenticated($request, AuthenticationException $exception)
-    {
-        return new JsonResponse([
-            'status' => false,
-            'message' => __('auth.messages.unauthenticated'),
-            'data' => null
-        ], Response::HTTP_UNAUTHORIZED);
-    }
+   
 
     /**
      * Render an exception into an HTTP response.
@@ -57,12 +44,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
-        dd($e);
-        if ($e instanceof AuthenticationException) {
-            dd("here");
-            return $this->unauthenticated($request, $e);
-        }
-
         return parent::render($request, $e);
     }
 } 

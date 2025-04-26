@@ -6,6 +6,12 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Support\Facades\Route;
 
+/**
+ * @OA\Tag(
+ *     name="Authentication",
+ *     description="API Endpoints for user authentication"
+ * )
+ */
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);

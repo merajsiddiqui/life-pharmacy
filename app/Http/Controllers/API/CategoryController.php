@@ -95,8 +95,8 @@ class CategoryController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name"},
-     *             @OA\Property(property="name", type="string", example="New Category"),
-     *             @OA\Property(property="description", type="string", example="Category description")
+     *             @OA\Property(property="name", type="string", example="Electronics"),
+     *             @OA\Property(property="description", type="string", example="Electronic devices and accessories")
      *         )
      *     ),
      *     @OA\Response(
@@ -109,6 +109,15 @@ class CategoryController extends Controller
      *                 property="data",
      *                 ref="#/components/schemas/CategoryResource"
      *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Unauthorized"),
+     *             @OA\Property(property="data", type="null")
      *         )
      *     ),
      *     @OA\Response(
@@ -200,8 +209,8 @@ class CategoryController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name"},
-     *             @OA\Property(property="name", type="string", example="Updated Category"),
-     *             @OA\Property(property="description", type="string", example="Updated description")
+     *             @OA\Property(property="name", type="string", example="Updated Electronics"),
+     *             @OA\Property(property="description", type="string", example="Updated electronic devices and accessories")
      *         )
      *     ),
      *     @OA\Response(
@@ -217,8 +226,21 @@ class CategoryController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Unauthorized"),
+     *             @OA\Property(property="data", type="null")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Category not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
      *     )
      * )
      *
@@ -262,7 +284,17 @@ class CategoryController extends Controller
      *         description="Category deleted successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="Category deleted successfully")
+     *             @OA\Property(property="message", type="string", example="Category deleted successfully"),
+     *             @OA\Property(property="data", type="null")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Unauthorized"),
+     *             @OA\Property(property="data", type="null")
      *         )
      *     ),
      *     @OA\Response(

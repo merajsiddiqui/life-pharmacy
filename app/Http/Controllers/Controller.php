@@ -26,6 +26,14 @@ use Illuminate\Routing\Controller as BaseController;
  *     description="Life Pharmacy API Server"
  * )
  * 
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     description="Enter your bearer token in the format: Bearer <token>"
+ * )
+ * 
  * @OA\Parameter(
  *     name="Accept-Language",
  *     in="header",

@@ -48,7 +48,8 @@ class AuthController extends Controller
      *             @OA\Property(property="name", type="string", example="John Doe"),
      *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
      *             @OA\Property(property="password", type="string", format="password", example="password123"),
-     *             @OA\Property(property="password_confirmation", type="string", format="password", example="password123")
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="password123"),
+     *             @OA\Property(property="user_type", type="string", enum={"customer", "admin"}, example="customer")
      *         )
      *     ),
      *     @OA\Response(
@@ -90,10 +91,11 @@ class AuthController extends Controller
 
         Log::info('User registered successfully', ['user_id' => $result['user']->id]);
 
-        return $this->createdResponse([
-            'user' => new UserResource($result['user']),
-            'token' => $result['token']
-        ], __('auth.messages.registered'));
+        return $this->resourceResponse(
+            UserResource::make($result['user']),
+            __('auth.messages.registered'),
+            Response::HTTP_CREATED
+        );
     }
 
     /**
@@ -156,7 +158,7 @@ class AuthController extends Controller
         Log::info('User logged in successfully', ['user_id' => $result['user']->id]);
 
         return $this->successResponse([
-            'user' => new UserResource($result['user']),
+            'user' => UserResource::make($result['user']),
             'token' => $result['token']
         ], __('auth.messages.logged_in'));
     }

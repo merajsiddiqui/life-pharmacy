@@ -689,8 +689,7 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "name",
-                                    "description"
+                                    "name"
                                 ],
                                 "properties": {
                                     "name": {
@@ -731,8 +730,8 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "Validation error",
+                    "401": {
+                        "description": "Unauthorized",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -743,32 +742,19 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "The given data was invalid"
+                                            "example": "Unauthorized"
                                         },
-                                        "errors": {
-                                            "properties": {
-                                                "name": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The name field is required"
-                                                    }
-                                                },
-                                                "description": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The description field is required"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
+                                        "data": {
+                                            "type": "null"
                                         }
                                     },
                                     "type": "object"
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 },
                 "security": [
@@ -821,24 +807,7 @@
                         }
                     },
                     "404": {
-                        "description": "Category not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Category not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Category not found"
                     }
                 }
             },
@@ -846,7 +815,7 @@
                 "tags": [
                     "Categories"
                 ],
-                "summary": "Update category",
+                "summary": "Update a category",
                 "description": "Update the specified category.",
                 "operationId": "7dcf71887e585de7f881e9eb98d86126",
                 "parameters": [
@@ -864,14 +833,17 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "name"
+                                ],
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Updated Category Name"
+                                        "example": "Updated Electronics"
                                     },
                                     "description": {
                                         "type": "string",
-                                        "example": "Updated category description"
+                                        "example": "Updated electronic devices and accessories"
                                     }
                                 },
                                 "type": "object"
@@ -903,8 +875,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Category not found",
+                    "401": {
+                        "description": "Unauthorized",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -915,13 +887,22 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Category not found"
+                                            "example": "Unauthorized"
+                                        },
+                                        "data": {
+                                            "type": "null"
                                         }
                                     },
                                     "type": "object"
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Category not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 },
                 "security": [
@@ -934,7 +915,7 @@
                 "tags": [
                     "Categories"
                 ],
-                "summary": "Delete category",
+                "summary": "Delete a category",
                 "description": "Remove the specified category.",
                 "operationId": "9b61b65823f4a21f182506b34ddf805c",
                 "parameters": [
@@ -961,6 +942,9 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Category deleted successfully"
+                                        },
+                                        "data": {
+                                            "type": "null"
                                         }
                                     },
                                     "type": "object"
@@ -968,8 +952,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Category not found",
+                    "401": {
+                        "description": "Unauthorized",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -980,13 +964,19 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Category not found"
+                                            "example": "Unauthorized"
+                                        },
+                                        "data": {
+                                            "type": "null"
                                         }
                                     },
                                     "type": "object"
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Category not found"
                     }
                 },
                 "security": [
@@ -1024,6 +1014,29 @@
                                             "items": {
                                                 "$ref": "#/components/schemas/OrderResource"
                                             }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        },
+                                        "data": {
+                                            "type": "null"
                                         }
                                     },
                                     "type": "object"
@@ -1082,7 +1095,50 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Order created successfully"
+                        "description": "Order created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Order created successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/OrderResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Validation error"
@@ -1683,6 +1739,10 @@
                         "type": "string",
                         "example": "Electronics"
                     },
+                    "slug": {
+                        "type": "string",
+                        "example": "electronics"
+                    },
                     "description": {
                         "type": "string",
                         "example": "Electronic devices and accessories"
@@ -1906,6 +1966,14 @@
                     "type": "string",
                     "default": "en"
                 }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Enter your bearer token in the format: Bearer <token>",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
             }
         }
     },

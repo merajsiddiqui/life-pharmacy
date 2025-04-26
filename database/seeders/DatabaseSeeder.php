@@ -20,6 +20,9 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
+        // Seed roles and assign them to users
+        $this->call(RoleSeeder::class);
+
         // Seed categories and products
         $this->call(CategoryAndProductSeeder::class);
     }

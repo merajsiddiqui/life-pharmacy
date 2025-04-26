@@ -55,4 +55,14 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], Response::HTTP_METHOD_NOT_ALLOWED);
             }
         });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException $e) {
+            if (request()->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This action is unauthorized.',
+                    'data' => null
+                ], Response::HTTP_FORBIDDEN);
+            }
+        });
     })->create();

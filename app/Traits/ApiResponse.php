@@ -47,8 +47,7 @@ trait ApiResponse
         return $resource
             ->additional([
                 'status' => 'success',
-                'message' => $message ? Lang::get($message) : null,
-                'data' => $resource
+                'message' => $message ? Lang::get($message) : null
             ])
             ->response()
             ->setStatusCode($code)

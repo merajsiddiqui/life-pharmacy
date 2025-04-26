@@ -56,6 +56,15 @@ class OrderController extends Controller
      *                 @OA\Items(ref="#/components/schemas/OrderResource")
      *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Unauthorized"),
+     *             @OA\Property(property="data", type="null")
+     *         )
      *     )
      * )
      *
@@ -100,7 +109,24 @@ class OrderController extends Controller
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Order created successfully"
+     *         description="Order created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Order created successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/OrderResource"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Unauthorized"),
+     *             @OA\Property(property="data", type="null")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=422,
