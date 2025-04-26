@@ -29,7 +29,7 @@ trait ApiResponse
     {
         return response()->json([
             'status' => 'success',
-            'message' => $message,
+            'message' => $message ? Lang::get($message) : null,
             'data' => $data,
         ], $statusCode);
     }
@@ -47,7 +47,8 @@ trait ApiResponse
         return $resource
             ->additional([
                 'status' => 'success',
-                'message' => $message ? Lang::get($message) : null
+                'message' => $message ? Lang::get($message) : null,
+                'data' => $resource
             ])
             ->response()
             ->setStatusCode($code)
@@ -67,7 +68,8 @@ trait ApiResponse
         return $collection
             ->additional([
                 'status' => 'success',
-                'message' => $message ? Lang::get($message) : null
+                'message' => $message ? Lang::get($message) : null,
+                'data' => $collection
             ])
             ->response()
             ->setStatusCode($code)
@@ -86,6 +88,7 @@ trait ApiResponse
         return response()->json([
             'status' => 'error',
             'message' => $message,
+            'data' => null
         ], $statusCode);
     }
 
@@ -98,7 +101,7 @@ trait ApiResponse
      */
     protected function createdResponse($data, ?string $message = null): JsonResponse
     {
-        return $this->successResponse($data, $message, 201);
+        return $this->successResponse($data, $message, Response::HTTP_CREATED);
     }
 
     /**
@@ -134,6 +137,7 @@ trait ApiResponse
         return response()->json([
             'status' => 'error',
             'message' => Lang::get('auth.messages.validation_failed'),
+            'data' => null,
             'errors' => $errors
         ], Response::HTTP_UNPROCESSABLE_ENTITY)->header('Content-Type', 'application/json');
     }
@@ -163,7 +167,7 @@ trait ApiResponse
     {
         $response = [
             'status' => 'success',
-            'message' => $message,
+            'message' => $message ? Lang::get($message) : null,
             'data' => $collection,
         ];
 

@@ -145,7 +145,7 @@ class ProductController extends Controller
 
         return $this->createdResponse(
             new ProductResource($product),
-            __('product.messages.created')
+            __('products.messages.created')
         );
     }
 
@@ -193,7 +193,7 @@ class ProductController extends Controller
 
         return $this->successResponse(
             new ProductResource($product),
-            __('product.messages.retrieved')
+            __('products.messages.retrieved')
         );
     }
 
@@ -264,7 +264,7 @@ class ProductController extends Controller
 
         return $this->successResponse(
             new ProductResource($product),
-            __('product.messages.updated')
+            __('products.messages.updated')
         );
     }
 
@@ -313,7 +313,7 @@ class ProductController extends Controller
 
         return $this->successResponse(
             null,
-            __('product.messages.deleted'),
+            __('products.messages.deleted'),
             Response::HTTP_NO_CONTENT
         );
     }
