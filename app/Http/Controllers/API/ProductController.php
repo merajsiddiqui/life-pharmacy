@@ -92,13 +92,14 @@ class ProductController extends Controller
      */
     public function index(): JsonResponse
     {
-        $products = $this->productService->getProducts();
+        $filters = request()->only(['category_id']);
+        $products = $this->productService->getAllProducts($filters);
 
         Log::info('Products retrieved successfully');
 
-        return $this->successResponse(
-            new ProductCollection($products),
-            __('product.messages.retrieved')
+        return $this->collectionResponse(
+            ProductResource::collection($products),
+            __('products.messages.retrieved')
         );
     }
 

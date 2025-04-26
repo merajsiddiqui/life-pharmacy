@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Product model representing a product in the system
@@ -60,7 +61,16 @@ class Product extends Model
         });
     }
 
-  
+    /**
+     * Get the category that owns the product
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
     /**
      * Get the categories associated with the product
      *

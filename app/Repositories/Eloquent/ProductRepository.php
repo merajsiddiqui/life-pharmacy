@@ -36,7 +36,7 @@ class ProductRepository implements ProductRepositoryInterface
     {
         $query = $this->model->with('category');
 
-        if (isset($filters['category_id'])) {
+        if (!empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
         }
 
