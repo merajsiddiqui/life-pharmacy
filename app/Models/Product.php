@@ -51,12 +51,32 @@ class Product extends Model
         parent::boot();
 
         static::creating(function ($product) {
-            $product->slug = Str::slug($product->name);
+            $baseSlug = Str::slug($product->name);
+            $slug = $baseSlug;
+            $counter = 1;
+
+            // Keep trying until we find a unique slug
+            while (static::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+
+            $product->slug = $slug;
         });
 
         static::updating(function ($product) {
             if ($product->isDirty('name')) {
-                $product->slug = Str::slug($product->name);
+                $baseSlug = Str::slug($product->name);
+                $slug = $baseSlug;
+                $counter = 1;
+
+                // Keep trying until we find a unique slug
+                while (static::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
+                    $slug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+
+                $product->slug = $slug;
             }
         });
     }

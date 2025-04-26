@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -63,6 +64,27 @@ return Application::configure(basePath: dirname(__DIR__))
                     'message' => 'This action is unauthorized.',
                     'data' => null
                 ], Response::HTTP_FORBIDDEN);
+            }
+        });
+
+        $exceptions->render(function (UniqueConstraintViolationException $e) {
+            if (request()->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'A record with this information already exists.',
+                    'data' => null
+                ], Response::HTTP_CONFLICT);
+            }
+        });
+
+        // Add a fallback handler for all other exceptions
+        $exceptions->render(function (\Throwable $e) {
+            if (request()->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                    'data' => null
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         });
     })->create();

@@ -114,11 +114,12 @@ class ProductController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name", "description", "price", "stock"},
+     *             required={"name", "description", "price", "stock", "category_id"},
      *             @OA\Property(property="name", type="string", example="Product Name"),
      *             @OA\Property(property="description", type="string", example="Product Description"),
      *             @OA\Property(property="price", type="number", format="float", example=99.99),
-     *             @OA\Property(property="stock", type="integer", example=100)
+     *             @OA\Property(property="stock", type="integer", example=100),
+     *             @OA\Property(property="category_id", type="integer", example=1)
      *         )
      *     ),
      *     @OA\Response(
@@ -181,10 +182,18 @@ class ProductController extends Controller
      *             @OA\Property(property="status", type="string", example="error"),
      *             @OA\Property(property="message", type="string", example="Product not found")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid ID format",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Invalid ID format. Please provide a valid numeric ID.")
+     *         )
      *     )
      * )
      *
-     * @param \App\Models\Product $product
+     * @param string|int $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Product $product): JsonResponse
@@ -214,11 +223,12 @@ class ProductController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name", "description", "price", "stock"},
+     *             required={"name", "description", "price", "stock", "category_id"},
      *             @OA\Property(property="name", type="string", example="Updated Product Name"),
      *             @OA\Property(property="description", type="string", example="Updated Product Description"),
      *             @OA\Property(property="price", type="number", format="float", example=149.99),
-     *             @OA\Property(property="stock", type="integer", example=50)
+     *             @OA\Property(property="stock", type="integer", example=50),
+     *             @OA\Property(property="category_id", type="integer", example=1)
      *         )
      *     ),
      *     @OA\Response(
@@ -246,11 +256,27 @@ class ProductController extends Controller
      *                 @OA\Property(property="price", type="array", @OA\Items(type="string", example="The price must be a number"))
      *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid ID format",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Invalid ID format. Please provide a valid numeric ID.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Product not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Product not found")
+     *         )
      *     )
      * )
      *
      * @param \App\Http\Requests\Api\UpdateProductRequest $request
-     * @param \App\Models\Product $product
+     * @param string|int $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
@@ -258,7 +284,7 @@ class ProductController extends Controller
         $this->authorize('update', $product);
         
         $sanitizedData = $this->sanitizeInput($request->validated());
-        $this->productService->updateProduct($product, $sanitizedData);
+        $product = $this->productService->updateProduct($product, $sanitizedData);
 
         Log::info('Product updated successfully', ['product_id' => $product->id]);
 
@@ -287,7 +313,16 @@ class ProductController extends Controller
      *         description="Product deleted successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="Product deleted successfully")
+     *             @OA\Property(property="message", type="string", example="Product deleted successfully"),
+     *             @OA\Property(property="data", type="null")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid ID format",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Invalid ID format. Please provide a valid numeric ID.")
      *         )
      *     ),
      *     @OA\Response(
@@ -300,7 +335,7 @@ class ProductController extends Controller
      *     )
      * )
      *
-     * @param \App\Models\Product $product
+     * @param string|int $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Product $product): JsonResponse
@@ -309,12 +344,12 @@ class ProductController extends Controller
         
         $this->productService->deleteProduct($product);
 
-        Log::info('Product deleted successfully', ['product_id' => $product->id]);
+        Log::info('Product deleted successfully', ['product_id' => $id]);
 
-        return $this->successResponse(
-            null,
-            __('products.messages.deleted'),
-            Response::HTTP_NO_CONTENT
-        );
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product deleted successfully',
+            'data' => null
+        ], Response::HTTP_NO_CONTENT);
     }
 }

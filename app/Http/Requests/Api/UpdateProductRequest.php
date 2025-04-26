@@ -5,15 +5,16 @@ namespace App\Http\Requests\Api;
 use App\Models\Product;
 use App\Policies\ProductPolicy;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class CreateProductRequest extends FormRequest
+class UpdateProductRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user() && app(ProductPolicy::class)->create($this->user());
+        return $this->user() && $this->user()->isAdmin();
     }
 
     /**
@@ -24,13 +25,28 @@ class CreateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
-            'category_id' => ['required', 'exists:categories,id'],
-            'image_url' => ['nullable', 'string', 'url'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'description' => ['sometimes', 'string'],
+            'price' => ['sometimes', 'numeric', 'min:0'],
+            'stock' => ['sometimes', 'integer', 'min:0'],
+            'category_id' => ['sometimes', 'exists:categories,id'],
+            'image_url' => ['sometimes', 'string', 'url'],
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param  \Illuminate\Validation\Validator  $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if (empty($this->all())) {
+                $validator->errors()->add('fields', 'At least one field must be present for update.');
+            }
+        });
     }
 
     /**
@@ -41,21 +57,17 @@ class CreateProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => __('products.validation.name_required'),
             'name.string' => __('products.validation.name_string'),
             'name.max' => __('products.validation.name_max'),
-            'description.required' => __('products.validation.description_required'),
             'description.string' => __('products.validation.description_string'),
-            'price.required' => __('products.validation.price_required'),
             'price.numeric' => __('products.validation.price_numeric'),
             'price.min' => __('products.validation.price_min'),
-            'stock.required' => __('products.validation.stock_required'),
             'stock.integer' => __('products.validation.stock_integer'),
             'stock.min' => __('products.validation.stock_min'),
-            'category_id.required' => __('products.validation.category_required'),
             'category_id.exists' => __('products.validation.category_not_found'),
             'image_url.string' => __('products.validation.image_string'),
             'image_url.url' => __('products.validation.image_url'),
+            'fields' => 'At least one field must be present for update.',
         ];
     }
-}
+} 

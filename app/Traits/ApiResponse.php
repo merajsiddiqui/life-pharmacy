@@ -67,8 +67,7 @@ trait ApiResponse
         return $collection
             ->additional([
                 'status' => 'success',
-                'message' => $message ? Lang::get($message) : null,
-                'data' => $collection
+                'message' => $message ? Lang::get($message) : null
             ])
             ->response()
             ->setStatusCode($code)
