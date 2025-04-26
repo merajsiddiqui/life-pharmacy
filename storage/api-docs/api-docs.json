@@ -1895,6 +1895,18 @@
                 },
                 "type": "object"
             }
+        },
+        "parameters": {
+            "Accept-Language": {
+                "name": "Accept-Language",
+                "in": "header",
+                "description": "Language for the response",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "default": "en"
+                }
+            }
         }
     },
     "tags": [

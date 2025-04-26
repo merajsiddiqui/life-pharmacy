@@ -27,7 +27,7 @@ class CategoryRepository implements CategoryRepositoryInterface
      */
     public function all(): Collection
     {
-        return $this->model->with('products')->get();
+        return $this->model->newQuery()->with('products')->get();
     }
 
     /**
@@ -35,7 +35,7 @@ class CategoryRepository implements CategoryRepositoryInterface
      */
     public function findById(int $id): ?Category
     {
-        return $this->model->with('products')->find($id);
+        return $this->model->newQuery()->with('products')->find($id);
     }
 
     /**

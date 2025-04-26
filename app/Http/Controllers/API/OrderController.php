@@ -63,6 +63,7 @@ class OrderController extends Controller
      */
     public function index(): JsonResponse
     {
+        $this->authorize('viewAny', Order::class);
         $orders = $this->orderService->getOrders(auth()->id());
 
         Log::info('Orders retrieved successfully', ['user_id' => auth()->id()]);
@@ -112,6 +113,8 @@ class OrderController extends Controller
      */
     public function store(CreateOrderRequest $request): JsonResponse
     {
+        $this->authorize('create', Order::class);
+        
         $sanitizedData = $this->sanitizeInput($request->validated());
         $order = $this->orderService->createOrder(auth()->id(), $sanitizedData['items']);
 
@@ -155,14 +158,7 @@ class OrderController extends Controller
      */
     public function show(Order $order): JsonResponse
     {
-        if ($order->user_id !== auth()->id()) {
-            Log::warning('Unauthorized order access attempt', [
-                'order_id' => $order->id,
-                'user_id' => auth()->id()
-            ]);
-
-            throw new HttpException(Response::HTTP_FORBIDDEN, __('order.messages.unauthorized'));
-        }
+        $this->authorize('view', $order);
 
         Log::info('Order retrieved successfully', [
             'order_id' => $order->id,
@@ -216,15 +212,8 @@ class OrderController extends Controller
      */
     public function cancel(Order $order): JsonResponse
     {
-        if ($order->user_id !== auth()->id()) {
-            Log::warning('Unauthorized order cancellation attempt', [
-                'order_id' => $order->id,
-                'user_id' => auth()->id()
-            ]);
-
-            throw new HttpException(Response::HTTP_FORBIDDEN, __('order.messages.unauthorized'));
-        }
-
+        $this->authorize('update', $order);
+        
         $this->orderService->cancelOrder($order);
 
         Log::info('Order cancelled successfully', [

@@ -134,6 +134,8 @@ class ProductController extends Controller
      */
     public function store(CreateProductRequest $request): JsonResponse
     {
+        $this->authorize('create', Product::class);
+        
         $sanitizedData = $this->sanitizeInput($request->validated());
         $product = $this->productService->createProduct($sanitizedData);
 
@@ -251,6 +253,8 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
+        $this->authorize('update', $product);
+        
         $sanitizedData = $this->sanitizeInput($request->validated());
         $this->productService->updateProduct($product, $sanitizedData);
 
@@ -299,6 +303,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): JsonResponse
     {
+        $this->authorize('delete', $product);
+        
         $this->productService->deleteProduct($product);
 
         Log::info('Product deleted successfully', ['product_id' => $product->id]);

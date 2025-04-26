@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\CategoryRequest;
+use App\Http\Requests\Api\CreateCategoryRequest;
+use App\Http\Requests\Api\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\Services\CategoryService;
 use App\Traits\ApiResponse;
 use App\Traits\SanitizesInput;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
@@ -69,27 +69,18 @@ class CategoryController extends Controller
      */
     public function index(): JsonResponse
     {
-        try {
-            $categories = Cache::remember('categories.all', 3600, function () {
-                return $this->categoryService->getAllCategories();
-            });
+        $categories = Cache::remember('categories.all', 3600, function () {
+            $result = $this->categoryService->getAllCategories();
+            \Log::info('Categories from service:', ['data' => $result->toArray()]);
+            return $result;
+        });
 
-            Log::info('Categories retrieved successfully');
+        Log::info('Categories retrieved successfully');
 
-            return $this->successResponse(
-                CategoryResource::collection($categories),
-                __('categories.messages.list_retrieved')
-            );
-        } catch (\Exception $e) {
-            Log::error('Error retrieving categories', [
-                'error' => $e->getMessage()
-            ]);
-
-            return $this->errorResponse(
-                __('categories.messages.retrieval_failed'),
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+        return $this->successResponse(
+            CategoryResource::collection($categories),
+            __('categories.messages.list_retrieved')
+        );
     }
 
     /**
@@ -103,9 +94,9 @@ class CategoryController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name", "description"},
-     *             @OA\Property(property="name", type="string", example="Electronics"),
-     *             @OA\Property(property="description", type="string", example="Electronic devices and accessories")
+     *             required={"name"},
+     *             @OA\Property(property="name", type="string", example="New Category"),
+     *             @OA\Property(property="description", type="string", example="Category description")
      *         )
      *     ),
      *     @OA\Response(
@@ -122,48 +113,28 @@ class CategoryController extends Controller
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="The given data was invalid"),
-     *             @OA\Property(
-     *                 property="errors",
-     *                 type="object",
-     *                 @OA\Property(property="name", type="array", @OA\Items(type="string", example="The name field is required")),
-     *                 @OA\Property(property="description", type="array", @OA\Items(type="string", example="The description field is required"))
-     *             )
-     *         )
+     *         description="Validation error"
      *     )
      * )
      *
-     * @param \App\Http\Requests\Api\CategoryRequest $request
+     * @param \App\Http\Requests\Api\CreateCategoryRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(CategoryRequest $request): JsonResponse
+    public function store(CreateCategoryRequest $request): JsonResponse
     {
-        try {
-            $sanitizedData = $this->sanitizeInput($request->validated());
-            $category = $this->categoryService->createCategory($sanitizedData);
+        $this->authorize('create', Category::class);
+        
+        $sanitizedData = $this->sanitizeInput($request->validated());
+        $category = $this->categoryService->createCategory($sanitizedData);
 
-            Cache::tags(['categories'])->flush();
+        Cache::tags(['categories'])->flush();
 
-            Log::info('Category created successfully', ['category_id' => $category->id]);
+        Log::info('Category created successfully', ['category_id' => $category->id]);
 
-            return $this->createdResponse(
-                new CategoryResource($category),
-                __('categories.messages.created')
-            );
-        } catch (\Exception $e) {
-            Log::error('Error creating category', [
-                'error' => $e->getMessage(),
-                'data' => $sanitizedData ?? []
-            ]);
-
-            return $this->errorResponse(
-                __('categories.messages.creation_failed'),
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+        return $this->createdResponse(
+            new CategoryResource($category),
+            __('categories.messages.created')
+        );
     }
 
     /**
@@ -193,11 +164,7 @@ class CategoryController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Category not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Category not found")
-     *         )
+     *         description="Category not found"
      *     )
      * )
      *
@@ -206,24 +173,12 @@ class CategoryController extends Controller
      */
     public function show(Category $category): JsonResponse
     {
-        try {
-            Log::info('Category retrieved successfully', ['category_id' => $category->id]);
+        Log::info('Category retrieved successfully', ['category_id' => $category->id]);
 
-            return $this->successResponse(
-                new CategoryResource($category),
-                __('categories.messages.retrieved')
-            );
-        } catch (\Exception $e) {
-            Log::error('Error retrieving category', [
-                'error' => $e->getMessage(),
-                'category_id' => $category->id
-            ]);
-
-            return $this->errorResponse(
-                __('categories.messages.retrieval_failed'),
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+        return $this->successResponse(
+            new CategoryResource($category),
+            __('categories.messages.retrieved')
+        );
     }
 
     /**
@@ -231,7 +186,7 @@ class CategoryController extends Controller
      * 
      * @OA\Put(
      *     path="/api/categories/{id}",
-     *     summary="Update category",
+     *     summary="Update a category",
      *     tags={"Categories"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -243,8 +198,9 @@ class CategoryController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string", example="Updated Category Name"),
-     *             @OA\Property(property="description", type="string", example="Updated category description")
+     *             required={"name"},
+     *             @OA\Property(property="name", type="string", example="Updated Category"),
+     *             @OA\Property(property="description", type="string", example="Updated description")
      *         )
      *     ),
      *     @OA\Response(
@@ -261,44 +217,29 @@ class CategoryController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Category not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Category not found")
-     *         )
+     *         description="Category not found"
      *     )
      * )
      *
-     * @param \App\Http\Requests\Api\CategoryRequest $request
+     * @param \App\Http\Requests\Api\UpdateCategoryRequest $request
      * @param \App\Models\Category $category
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(CategoryRequest $request, Category $category): JsonResponse
+    public function update(UpdateCategoryRequest $request, Category $category): JsonResponse
     {
-        try {
-            $sanitizedData = $this->sanitizeInput($request->validated());
-            $category = $this->categoryService->updateCategory($category, $sanitizedData);
+        $this->authorize('update', $category);
+        
+        $sanitizedData = $this->sanitizeInput($request->validated());
+        $this->categoryService->updateCategory($category, $sanitizedData);
 
-            Cache::tags(['categories'])->flush();
+        Cache::tags(['categories'])->flush();
 
-            Log::info('Category updated successfully', ['category_id' => $category->id]);
+        Log::info('Category updated successfully', ['category_id' => $category->id]);
 
-            return $this->successResponse(
-                new CategoryResource($category),
-                __('categories.messages.updated')
-            );
-        } catch (\Exception $e) {
-            Log::error('Error updating category', [
-                'error' => $e->getMessage(),
-                'category_id' => $category->id,
-                'data' => $sanitizedData ?? []
-            ]);
-
-            return $this->errorResponse(
-                __('categories.messages.update_failed'),
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+        return $this->successResponse(
+            new CategoryResource($category),
+            __('categories.messages.updated')
+        );
     }
 
     /**
@@ -306,7 +247,7 @@ class CategoryController extends Controller
      * 
      * @OA\Delete(
      *     path="/api/categories/{id}",
-     *     summary="Delete category",
+     *     summary="Delete a category",
      *     tags={"Categories"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -325,11 +266,7 @@ class CategoryController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Category not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Category not found")
-     *         )
+     *         description="Category not found"
      *     )
      * )
      *
@@ -338,28 +275,18 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category): JsonResponse
     {
-        try {
-            $this->categoryService->deleteCategory($category);
+        $this->authorize('delete', $category);
+        
+        $this->categoryService->deleteCategory($category);
 
-            Cache::tags(['categories'])->flush();
+        Cache::tags(['categories'])->flush();
 
-            Log::info('Category deleted successfully', ['category_id' => $category->id]);
+        Log::info('Category deleted successfully', ['category_id' => $category->id]);
 
-            return $this->successResponse(
-                null,
-                __('categories.messages.deleted'),
-                Response::HTTP_NO_CONTENT
-            );
-        } catch (\Exception $e) {
-            Log::error('Error deleting category', [
-                'error' => $e->getMessage(),
-                'category_id' => $category->id
-            ]);
-
-            return $this->errorResponse(
-                __('categories.messages.delete_failed'),
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+        return $this->successResponse(
+            null,
+            __('categories.messages.deleted'),
+            Response::HTTP_NO_CONTENT
+        );
     }
 } 

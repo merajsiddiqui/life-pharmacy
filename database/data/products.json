@@ -1,0 +1,139 @@
+{
+    "products": [
+        {
+            "name": "Paracetamol 500mg",
+            "description": "Pain reliever and fever reducer",
+            "price": 5.99,
+            "stock": 100,
+            "category_id": 1,
+            "status": "active",
+            "image_url": "https://example.com/images/paracetamol.jpg"
+        },
+        {
+            "name": "Ibuprofen 400mg",
+            "description": "Anti-inflammatory pain reliever",
+            "price": 7.99,
+            "stock": 80,
+            "category_id": 1,
+            "status": "active",
+            "image_url": "https://example.com/images/ibuprofen.jpg"
+        },
+        {
+            "name": "Vitamin C 1000mg",
+            "description": "Immune system support supplement",
+            "price": 12.99,
+            "stock": 50,
+            "category_id": 3,
+            "status": "active",
+            "image_url": "https://example.com/images/vitamin-c.jpg"
+        },
+        {
+            "name": "Digital Thermometer",
+            "description": "Fast and accurate temperature reading",
+            "price": 15.99,
+            "stock": 30,
+            "category_id": 4,
+            "status": "active",
+            "image_url": "https://example.com/images/thermometer.jpg"
+        },
+        {
+            "name": "Baby Shampoo",
+            "description": "Gentle formula for sensitive skin",
+            "price": 8.99,
+            "stock": 60,
+            "category_id": 5,
+            "status": "active",
+            "image_url": "https://example.com/images/baby-shampoo.jpg"
+        },
+        {
+            "name": "First Aid Kit",
+            "description": "Complete emergency care kit",
+            "price": 24.99,
+            "stock": 20,
+            "category_id": 6,
+            "status": "active",
+            "image_url": "https://example.com/images/first-aid-kit.jpg"
+        },
+        {
+            "name": "Electric Toothbrush",
+            "description": "Advanced cleaning technology",
+            "price": 29.99,
+            "stock": 40,
+            "category_id": 7,
+            "status": "active",
+            "image_url": "https://example.com/images/electric-toothbrush.jpg"
+        },
+        {
+            "name": "Moisturizing Cream",
+            "description": "Hydrating skin care formula",
+            "price": 14.99,
+            "stock": 70,
+            "category_id": 8,
+            "status": "active",
+            "image_url": "https://example.com/images/moisturizer.jpg"
+        },
+        {
+            "name": "Antibacterial Soap",
+            "description": "Kills 99.9% of bacteria",
+            "price": 4.99,
+            "stock": 90,
+            "category_id": 2,
+            "status": "active",
+            "image_url": "https://example.com/images/antibacterial-soap.jpg"
+        },
+        {
+            "name": "Multivitamin Tablets",
+            "description": "Complete daily nutrition support",
+            "price": 18.99,
+            "stock": 45,
+            "category_id": 3,
+            "status": "active",
+            "image_url": "https://example.com/images/multivitamin.jpg"
+        },
+        {
+            "name": "Blood Pressure Monitor",
+            "description": "Digital automatic BP measurement",
+            "price": 49.99,
+            "stock": 25,
+            "category_id": 4,
+            "status": "active",
+            "image_url": "https://example.com/images/bp-monitor.jpg"
+        },
+        {
+            "name": "Baby Diapers",
+            "description": "Premium quality, hypoallergenic",
+            "price": 19.99,
+            "stock": 100,
+            "category_id": 5,
+            "status": "active",
+            "image_url": "https://example.com/images/baby-diapers.jpg"
+        },
+        {
+            "name": "Bandage Roll",
+            "description": "Sterile medical bandage",
+            "price": 3.99,
+            "stock": 120,
+            "category_id": 6,
+            "status": "active",
+            "image_url": "https://example.com/images/bandage.jpg"
+        },
+        {
+            "name": "Floss Picks",
+            "description": "Easy-to-use dental floss",
+            "price": 6.99,
+            "stock": 80,
+            "category_id": 7,
+            "status": "active",
+            "image_url": "https://example.com/images/floss-picks.jpg"
+        },
+        {
+            "name": "Sunscreen SPF 50",
+            "description": "Broad spectrum protection",
+            "price": 16.99,
+            "stock": 55,
+            "category_id": 8,
+            "status": "active",
+            "image_url": "https://example.com/images/sunscreen.jpg"
+        }
+    ]
+} 

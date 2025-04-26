@@ -33,12 +33,12 @@ class CategoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'description' => $this->description,
-            'products' => ProductResource::collection($this->whenLoaded('products')),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'id' => $this->resource?->id,
+            'name' => $this->resource?->name,
+            'description' => $this->resource?->description,
+            // 'products' => ProductResource::collection($this->whenLoaded('products')),
+            'created_at' => $this->resource?->created_at,
+            'updated_at' => $this->resource?->updated_at,
         ];
     }
 } 

@@ -73,6 +73,7 @@ class CartController extends Controller
      */
     public function index(): JsonResponse
     {
+        $this->authorize('viewAny', Cart::class);
         $cart = $this->cartService->getCart(auth()->id());
 
         Log::info('Cart retrieved successfully', ['user_id' => auth()->id()]);
@@ -132,6 +133,8 @@ class CartController extends Controller
      */
     public function addItem(AddToCartRequest $request): JsonResponse
     {
+        $this->authorize('create', CartItem::class);
+        
         $sanitizedData = $this->sanitizeInput($request->validated());
         $cart = $this->cartService->getCart(auth()->id());
         $item = $this->cartService->addToCart(
@@ -200,15 +203,8 @@ class CartController extends Controller
      */
     public function updateItem(UpdateCartItemRequest $request, CartItem $item): JsonResponse
     {
-        if ($item->cart->user_id !== auth()->id()) {
-            Log::warning('Unauthorized cart item update attempt', [
-                'item_id' => $item->id,
-                'user_id' => auth()->id()
-            ]);
-
-            throw new HttpException(Response::HTTP_FORBIDDEN, __('cart.messages.unauthorized'));
-        }
-
+        $this->authorize('update', $item);
+        
         $sanitizedData = $this->sanitizeInput($request->validated());
         $this->cartService->updateCartItem($item, $sanitizedData['quantity']);
 
@@ -260,15 +256,8 @@ class CartController extends Controller
      */
     public function removeItem(CartItem $item): JsonResponse
     {
-        if ($item->cart->user_id !== auth()->id()) {
-            Log::warning('Unauthorized cart item removal attempt', [
-                'item_id' => $item->id,
-                'user_id' => auth()->id()
-            ]);
-
-            throw new HttpException(Response::HTTP_FORBIDDEN, __('cart.messages.unauthorized'));
-        }
-
+        $this->authorize('delete', $item);
+        
         $this->cartService->removeFromCart($item);
 
         Log::info('Item removed from cart successfully', [
@@ -305,6 +294,8 @@ class CartController extends Controller
     public function clear(): JsonResponse
     {
         $cart = $this->cartService->getCart(auth()->id());
+        $this->authorize('update', $cart);
+        
         $this->cartService->clearCart($cart);
 
         Log::info('Cart cleared successfully', ['user_id' => auth()->id()]);

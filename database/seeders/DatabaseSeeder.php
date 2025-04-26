@@ -4,8 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use App\Models\Category;
-use App\Models\Product;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
@@ -22,14 +20,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
-        // Create test categories
-        $categories = Category::factory()->count(5)->create();
-
-        // Create test products for each category
-        foreach ($categories as $category) {
-            Product::factory()->count(3)->create([
-                'category_id' => $category->id
-            ]);
-        }
+        // Seed categories and products
+        $this->call(CategoryAndProductSeeder::class);
     }
 }

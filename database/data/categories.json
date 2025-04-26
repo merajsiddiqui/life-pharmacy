@@ -1,0 +1,44 @@
+{
+    "categories": [
+        {
+            "name": "Pharmacy",
+            "description": "Pharmaceutical products and medications",
+            "status": "active"
+        },
+        {
+            "name": "Personal Care",
+            "description": "Personal hygiene and beauty products",
+            "status": "active"
+        },
+        {
+            "name": "Health Supplements",
+            "description": "Vitamins, minerals, and nutritional supplements",
+            "status": "active"
+        },
+        {
+            "name": "Medical Devices",
+            "description": "Medical equipment and devices for home use",
+            "status": "active"
+        },
+        {
+            "name": "Baby Care",
+            "description": "Products for infant and baby care",
+            "status": "active"
+        },
+        {
+            "name": "First Aid",
+            "description": "First aid supplies and emergency care products",
+            "status": "active"
+        },
+        {
+            "name": "Dental Care",
+            "description": "Oral hygiene and dental care products",
+            "status": "active"
+        },
+        {
+            "name": "Skin Care",
+            "description": "Skincare products and treatments",
+            "status": "active"
+        }
+    ]
+} 

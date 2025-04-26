@@ -25,6 +25,17 @@ use Illuminate\Routing\Controller as BaseController;
  *     url="http://my-default-host.com",
  *     description="Life Pharmacy API Server"
  * )
+ * 
+ * @OA\Parameter(
+ *     name="Accept-Language",
+ *     in="header",
+ *     description="Language for the response",
+ *     required=false,
+ *     @OA\Schema(
+ *         type="string",
+ *         default="en"
+ *     )
+ * )
  */
 class Controller extends BaseController
 {

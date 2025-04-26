@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Category;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Class CategoryService
@@ -25,11 +26,11 @@ class CategoryService
     /**
      * Get all categories
      *
-     * @return array
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getAllCategories(): array
+    public function getAllCategories(): Collection
     {
-        return $this->categoryRepository->all()->toArray();
+        return $this->categoryRepository->all();
     }
 
     /**

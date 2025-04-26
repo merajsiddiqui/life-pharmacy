@@ -59,4 +59,4 @@ class CategoryRequest extends FormRequest
             'description.max' => __('categories.validation.description_max'),
         ];
     }
-} 
+}
