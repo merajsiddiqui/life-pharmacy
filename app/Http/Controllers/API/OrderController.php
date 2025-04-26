@@ -252,4 +252,55 @@ class OrderController extends Controller
             __('order.messages.cancelled')
         );
     }
+
+    /**
+     * Remove the specified order.
+     * 
+     * @OA\Delete(
+     *     path="/api/orders/{order}",
+     *     summary="Delete an order",
+     *     tags={"Orders"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="order",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Order deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Order deleted successfully"),
+     *             @OA\Property(property="data", type="null")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Order not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Order not found"),
+     *             @OA\Property(property="data", type="null")
+     *         )
+     *     )
+     * )
+     *
+     * @param \App\Models\Order $order
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(Order $order): JsonResponse
+    {
+        $this->authorize('delete', $order);
+        
+        $this->orderService->deleteOrder($order);
+
+        Log::info('Order deleted successfully', [
+            'order_id' => $order->id,
+            'user_id' => auth()->id()
+        ]);
+
+        return $this->deletedResponse(__('orders.messages.deleted'));
+    }
 }

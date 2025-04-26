@@ -269,12 +269,12 @@ class CategoryController extends Controller
      * Remove the specified category.
      * 
      * @OA\Delete(
-     *     path="/api/categories/{id}",
+     *     path="/api/categories/{category}",
      *     summary="Delete a category",
      *     tags={"Categories"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
-     *         name="id",
+     *         name="category",
      *         in="path",
      *         required=true,
      *         @OA\Schema(type="integer")
@@ -289,17 +289,13 @@ class CategoryController extends Controller
      *         )
      *     ),
      *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized",
+     *         response=404,
+     *         description="Category not found",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Unauthorized"),
+     *             @OA\Property(property="message", type="string", example="Category not found"),
      *             @OA\Property(property="data", type="null")
      *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Category not found"
      *     )
      * )
      *
@@ -316,10 +312,6 @@ class CategoryController extends Controller
 
         Log::info('Category deleted successfully', ['category_id' => $category->id]);
 
-        return $this->resourceResponse(
-            null,
-            __('categories.messages.deleted'),
-            Response::HTTP_NO_CONTENT
-        );
+        return $this->deletedResponse(__('categories.messages.deleted'));
     }
 } 

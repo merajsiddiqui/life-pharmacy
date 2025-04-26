@@ -298,18 +298,18 @@ class ProductController extends Controller
      * Remove the specified product.
      * 
      * @OA\Delete(
-     *     path="/api/products/{id}",
+     *     path="/api/products/{product}",
      *     summary="Delete a product",
      *     tags={"Products"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
-     *         name="id",
+     *         name="product",
      *         in="path",
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(
-     *         response=204,
+     *         response=200,
      *         description="Product deleted successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
@@ -318,24 +318,17 @@ class ProductController extends Controller
      *         )
      *     ),
      *     @OA\Response(
-     *         response=400,
-     *         description="Invalid ID format",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Invalid ID format. Please provide a valid numeric ID.")
-     *         )
-     *     ),
-     *     @OA\Response(
      *         response=404,
      *         description="Product not found",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Product not found")
+     *             @OA\Property(property="message", type="string", example="Product not found"),
+     *             @OA\Property(property="data", type="null")
      *         )
      *     )
      * )
      *
-     * @param string|int $id
+     * @param \App\Models\Product $product
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Product $product): JsonResponse
@@ -344,12 +337,8 @@ class ProductController extends Controller
         
         $this->productService->deleteProduct($product);
 
-        Log::info('Product deleted successfully', ['product_id' => $id]);
+        Log::info('Product deleted successfully', ['product_id' => $product->id]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Product deleted successfully',
-            'data' => null
-        ], Response::HTTP_NO_CONTENT);
+        return $this->deletedResponse(__('products.messages.deleted'));
     }
 }

@@ -192,4 +192,18 @@ trait ApiResponse
 
         return response()->json($response, $statusCode);
     }
+    /**
+     * Return a success response for deleted resources
+     *
+     * @param string|null $message Optional success message to be translated
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function deletedResponse(?string $message = null): JsonResponse
+    {
+        return response()->json([
+            'status' => 'success',
+            'message' => $message ? Lang::get($message) : null,
+            'data' => null,
+        ], Response::HTTP_NO_CONTENT);
+    }
 }
