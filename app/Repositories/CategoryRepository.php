@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Category;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Class CategoryRepository
@@ -28,6 +29,16 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function all(): Collection
     {
         return $this->model->newQuery()->with('products')->get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function paginate(int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->model->newQuery()
+            ->with('products')
+            ->paginate($perPage);
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\CreateProductRequest;
 use App\Http\Requests\Api\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\ProductCollection;
 use App\Models\Product;
 use App\Services\ProductService;
 use App\Traits\ApiResponse;
@@ -96,7 +97,7 @@ class ProductController extends Controller
         Log::info('Products retrieved successfully');
 
         return $this->successResponse(
-            ProductResource::collection($products),
+            new ProductCollection($products),
             __('product.messages.retrieved')
         );
     }

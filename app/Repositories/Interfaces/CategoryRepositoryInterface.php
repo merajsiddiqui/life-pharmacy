@@ -4,6 +4,7 @@ namespace App\Repositories\Interfaces;
 
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Interface CategoryRepositoryInterface
@@ -13,11 +14,19 @@ use Illuminate\Database\Eloquent\Collection;
 interface CategoryRepositoryInterface
 {
     /**
-     * Get all categories with their products
+     * Get all categories
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function all(): Collection;
+
+    /**
+     * Get paginated categories
+     *
+     * @param int $perPage
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function paginate(int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Find a category by ID with its products

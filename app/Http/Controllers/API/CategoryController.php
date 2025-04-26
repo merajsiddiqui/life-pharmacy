@@ -69,15 +69,15 @@ class CategoryController extends Controller
      */
     public function index(): JsonResponse
     {
-        $categories = Cache::remember('categories.all', 3600, function () {
-            $result = $this->categoryService->getAllCategories();
-            \Log::info('Categories from service:', ['data' => $result->toArray()]);
-            return $result;
-        });
+        $categories = $this->categoryService->getPaginatedCategories();
 
         Log::info('Categories retrieved successfully');
+        Log::info('Current application locale', [
+            'locale' => \App::getLocale(),
+            'fallback_locale' => config('app.fallback_locale')
+        ]);
 
-        return $this->successResponse(
+        return $this->collectionResponse(
             CategoryResource::collection($categories),
             __('categories.messages.list_retrieved')
         );
@@ -131,9 +131,10 @@ class CategoryController extends Controller
 
         Log::info('Category created successfully', ['category_id' => $category->id]);
 
-        return $this->createdResponse(
-            new CategoryResource($category),
-            __('categories.messages.created')
+        return $this->resourceResponse(
+            CategoryResource::make($category),
+            __('categories.messages.created'),
+            Response::HTTP_CREATED
         );
     }
 
@@ -175,8 +176,8 @@ class CategoryController extends Controller
     {
         Log::info('Category retrieved successfully', ['category_id' => $category->id]);
 
-        return $this->successResponse(
-            new CategoryResource($category),
+        return $this->resourceResponse(
+            CategoryResource::make($category),
             __('categories.messages.retrieved')
         );
     }
@@ -236,7 +237,7 @@ class CategoryController extends Controller
 
         Log::info('Category updated successfully', ['category_id' => $category->id]);
 
-        return $this->successResponse(
+        return $this->resourceResponse(
             new CategoryResource($category),
             __('categories.messages.updated')
         );
@@ -283,7 +284,7 @@ class CategoryController extends Controller
 
         Log::info('Category deleted successfully', ['category_id' => $category->id]);
 
-        return $this->successResponse(
+        return $this->resourceResponse(
             null,
             __('categories.messages.deleted'),
             Response::HTTP_NO_CONTENT

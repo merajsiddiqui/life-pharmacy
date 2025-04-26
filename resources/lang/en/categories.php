@@ -17,7 +17,6 @@ return [
         'name_required' => 'The category name is required',
         'name_string' => 'The category name must be a string',
         'name_max' => 'The category name must not exceed :max characters',
-        'name_unique' => 'Category name is already taken',
         'description_string' => 'The category description must be a string',
         'description_max' => 'The category description must not exceed :max characters',
     ]

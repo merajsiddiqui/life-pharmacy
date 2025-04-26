@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 
 class SetLocale
 {
@@ -26,6 +27,11 @@ class SetLocale
 
         App::setLocale($locale);
         
+        Log::info('Locale set', [
+            'locale' => App::getLocale(),
+            'fallback_locale' => config('app.fallback_locale')
+        ]);
+
         return $next($request);
     }
 } 

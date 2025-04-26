@@ -16,6 +16,13 @@ return [
         'password_confirmed' => 'The password confirmation does not match.',
     ],
     'messages' => [
-        'registration_failed' => 'Registration failed. Please try again.',
+        'registered' => 'User registered successfully',
+        'registration_failed' => 'Failed to register user',
+        'logged_in' => 'Logged in successfully',
+        'login_failed' => 'Failed to login',
+        'invalid_credentials' => 'Invalid credentials',
+        'logged_out' => 'Logged out successfully',
+        'logout_failed' => 'Failed to logout',
+        'unauthenticated' => 'You are not authenticated. Please login to access this resource.',
     ],
 ];
