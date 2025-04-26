@@ -43,7 +43,7 @@ class Handler extends ExceptionHandler
             'status' => false,
             'message' => __('auth.messages.unauthenticated'),
             'data' => null
-        ], 401);
+        ], Response::HTTP_UNAUTHORIZED);
     }
 
     /**
@@ -57,7 +57,9 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
+        dd($e);
         if ($e instanceof AuthenticationException) {
+            dd("here");
             return $this->unauthenticated($request, $e);
         }
 
