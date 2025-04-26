@@ -6,6 +6,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Lang;
 
 /**
  * Trait for handling API responses in a consistent format
@@ -24,7 +25,7 @@ trait ApiResponse
     {
         return response()->json([
             'status' => 'success',
-            'message' => $message,
+            'message' => $message ? Lang::get($message) : null,
             'data' => $data
         ], $code);
     }
@@ -42,7 +43,7 @@ trait ApiResponse
         return $resource
             ->additional([
                 'status' => 'success',
-                'message' => $message
+                'message' => $message ? Lang::get($message) : null
             ])
             ->response()
             ->setStatusCode($code);
@@ -61,7 +62,7 @@ trait ApiResponse
         return $collection
             ->additional([
                 'status' => 'success',
-                'message' => $message
+                'message' => $message ? Lang::get($message) : null
             ])
             ->response()
             ->setStatusCode($code);
@@ -78,7 +79,7 @@ trait ApiResponse
     {
         return response()->json([
             'status' => 'error',
-            'message' => $message,
+            'message' => Lang::get($message),
         ], $code);
     }
 
@@ -101,7 +102,7 @@ trait ApiResponse
     {
         return response()->json([
             'status' => 'error',
-            'message' => 'Validation failed',
+            'message' => Lang::get('auth.messages.validation_failed'),
             'errors' => $errors
         ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
