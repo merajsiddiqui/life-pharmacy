@@ -12,7 +12,7 @@ class UpdateCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && app(CategoryPolicy::class)->update($this->user());
+        return $this->user() && app(CategoryPolicy::class)->update($this->user(), $this->route('category'));
     }
 
     /**

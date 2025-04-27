@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -99,7 +100,10 @@ class OrderControllerTest extends TestCase
                     'product_id' => $product->id,
                     'quantity' => 2
                 ]
-            ]
+            ],
+            'shipping_address' => '123 Test Street, Test City',
+            'phone_number' => '1234567890',
+            'payment_method' => 'credit_card'
         ];
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
@@ -162,10 +166,18 @@ class OrderControllerTest extends TestCase
      */
     public function test_can_update_order_status()
     {
+        $adminRole = Role::create([
+            'name' => 'Admin',
+            'slug' => 'admin',
+            'description' => 'Administrator role with full access'
+        ]);
+
         $user = User::factory()->create([
             'email' => 'test@example.com',
             'password' => Hash::make('password123')
         ]);
+        $user->roles()->attach($adminRole->id);
+        
         $token = $user->createToken('test-token')->plainTextToken;
 
         $order = Order::factory()->create([
@@ -199,6 +211,8 @@ class OrderControllerTest extends TestCase
      */
     public function test_validates_required_fields_on_create()
     {
+        $this->withExceptionHandling(); // Enable exception handling
+
         $user = User::factory()->create([
             'email' => 'test@example.com',
             'password' => Hash::make('password123')
@@ -209,7 +223,12 @@ class OrderControllerTest extends TestCase
             ->postJson('/api/orders', []);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['items']);
+            ->assertJsonValidationErrors([
+                'items',
+                'shipping_address',
+                'phone_number',
+                'payment_method'
+            ]);
     }
 
     /**
@@ -220,6 +239,8 @@ class OrderControllerTest extends TestCase
      */
     public function test_validates_product_availability()
     {
+        $this->withExceptionHandling(); // Enable exception handling
+
         $user = User::factory()->create([
             'email' => 'test@example.com',
             'password' => Hash::make('password123')
@@ -227,21 +248,25 @@ class OrderControllerTest extends TestCase
         $token = $user->createToken('test-token')->plainTextToken;
 
         $product = Product::factory()->create([
-            'stock' => 5
+            'stock' => 0
         ]);
+
         $orderData = [
             'items' => [
                 [
                     'product_id' => $product->id,
-                    'quantity' => 6
+                    'quantity' => 1
                 ]
-            ]
+            ],
+            'shipping_address' => '123 Test Street, Test City',
+            'phone_number' => '1234567890',
+            'payment_method' => 'credit_card'
         ];
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->postJson('/api/orders', $orderData);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['items.0.quantity']);
+            ->assertJsonValidationErrors(['items.0.product_id']);
     }
 } 

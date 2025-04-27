@@ -9,10 +9,10 @@ return [
         'unauthorized' => 'You are not authorized to view this order',
     ],
     'validation' => [
-        'items_required' => 'Order items are required',
+        'items_required' => 'At least one item is required.',
         'items_array' => 'Order items must be an array',
         'product_id_required' => 'Product ID is required',
-        'product_not_found' => 'Selected product does not exist',
+        'product_not_found' => 'Product not found.',
         'quantity_required' => 'Quantity is required',
         'quantity_integer' => 'Quantity must be an integer',
         'quantity_min' => 'Quantity must be at least 1',
@@ -23,6 +23,19 @@ return [
         'phone_string' => 'Phone number must be a string',
         'phone_max' => 'Phone number cannot exceed 20 characters',
         'notes_string' => 'Notes must be a string',
-        'notes_max' => 'Notes cannot exceed 1000 characters'
-    ]
+        'notes_max' => 'Notes cannot exceed 1000 characters',
+        'product_out_of_stock' => 'Product is out of stock.',
+        'insufficient_stock' => 'Insufficient stock available for the requested quantity.',
+        'invalid_quantity' => 'Invalid quantity specified.',
+    ],
+    'success' => [
+        'created' => 'Order created successfully.',
+        'updated' => 'Order updated successfully.',
+        'deleted' => 'Order deleted successfully.',
+    ],
+    'error' => [
+        'create' => 'Failed to create order.',
+        'update' => 'Failed to update order.',
+        'delete' => 'Failed to delete order.',
+    ],
 ]; 

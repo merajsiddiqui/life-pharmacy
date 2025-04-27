@@ -23,6 +23,20 @@ class OrderService
             $totalAmount = 0;
             $orderItems = [];
 
+            // Validate stock availability for all items first
+            foreach ($items as $item) {
+                $product = Product::findOrFail($item['product_id']);
+                
+                if ($product->stock === 0) {
+                    throw new \Exception(__('orders.validation.product_out_of_stock'));
+                }
+                
+                if ($product->stock < $item['quantity']) {
+                    throw new \Exception(__('orders.validation.insufficient_stock'));
+                }
+            }
+
+            // Process order items and calculate total
             foreach ($items as $item) {
                 $product = Product::findOrFail($item['product_id']);
                 $subtotal = $product->price * $item['quantity'];
@@ -34,6 +48,9 @@ class OrderService
                     'unit_price' => $product->price,
                     'subtotal' => $subtotal
                 ];
+
+                // Update product stock
+                $product->decrement('stock', $item['quantity']);
             }
 
             $order = $this->orderRepository->create([
@@ -105,18 +122,13 @@ class OrderService
     /**
      * Update order status.
      *
-     * @param int $orderId
+     * @param \App\Models\Order $order
      * @param string $status
-     * @param int $userId
      * @return \App\Models\Order
      */
-    public function updateOrderStatus(int $orderId, string $status, int $userId): Order
+    public function updateOrderStatus(Order $order, string $status): Order
     {
-        $order = Order::where('user_id', $userId)
-            ->findOrFail($orderId);
-
         $order->update(['status' => $status]);
-
         return $order->load('items.product');
     }
 } 

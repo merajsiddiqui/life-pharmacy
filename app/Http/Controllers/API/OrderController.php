@@ -12,6 +12,7 @@ use App\Services\OrderService;
 use App\Traits\ApiResponse;
 use App\Traits\SanitizesInput;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -142,7 +143,12 @@ class OrderController extends Controller
         $this->authorize('create', Order::class);
         
         $sanitizedData = $this->sanitizeInput($request->validated());
-        $order = $this->orderService->createOrder(auth()->id(), $sanitizedData['items']);
+        $order = $this->orderService->createOrder([
+            'user_id' => auth()->id(),
+            'shipping_address' => $sanitizedData['shipping_address'],
+            'phone_number' => $sanitizedData['phone_number'],
+            'notes' => $sanitizedData['notes'] ?? null
+        ], $sanitizedData['items']);
 
         Log::info('Order created successfully', [
             'order_id' => $order->id,
@@ -302,5 +308,62 @@ class OrderController extends Controller
         ]);
 
         return $this->deletedResponse(__('orders.messages.deleted'));
+    }
+
+    /**
+     * Update the specified order's status.
+     * 
+     * @OA\Put(
+     *     path="/api/orders/{id}",
+     *     summary="Update order status",
+     *     tags={"Orders"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"status"},
+     *             @OA\Property(property="status", type="string", example="processing")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Order updated successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Order not found"
+     *     )
+     * )
+     *
+     * @param \App\Models\Order $order
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Order $order, Request $request): JsonResponse
+    {
+        $this->authorize('update', $order);
+        
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:pending,processing,completed,cancelled']
+        ]);
+        
+        $order = $this->orderService->updateOrderStatus($order, $validated['status']);
+
+        Log::info('Order status updated successfully', [
+            'order_id' => $order->id,
+            'user_id' => auth()->id(),
+            'status' => $validated['status']
+        ]);
+
+        return $this->successResponse(
+            new OrderResource($order),
+            __('order.messages.updated')
+        );
     }
 }
