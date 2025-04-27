@@ -7,6 +7,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * CartItem model representing an item in a shopping cart
@@ -92,15 +94,5 @@ class CartItem extends Model
     {
         $this->subtotal = $this->quantity * $this->unit_price;
         $this->save();
-    }
-
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName(): string
-    {
-        return 'id';
     }
 }

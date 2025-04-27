@@ -20,6 +20,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Http\Request;
+use Throwable;
 
 /**
  * @OA\Tag(
@@ -39,6 +40,26 @@ class CartController extends Controller
     public function __construct(
         protected CartService $cartService
     ) {
+    }
+
+    /**
+     * Handle any unexpected errors in the controller methods.
+     *
+     * @param \Throwable $e
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function handleError(Throwable $e): JsonResponse
+    {
+        Log::error('Unexpected error in CartController', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'user_id' => auth()->id()
+        ]);
+
+        return $this->errorResponse(
+            'An unexpected error occurred. Please try again later.',
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
     }
 
     /**
@@ -75,6 +96,7 @@ class CartController extends Controller
      */
     public function index(): JsonResponse
     {
+        
         $this->authorize('viewAny', CartItem::class);
         $cart = $this->cartService->getCart(auth()->id());
 
@@ -84,6 +106,7 @@ class CartController extends Controller
             'items' => CartItemResource::collection($cart->items),
             'total_amount' => $cart->total
         ], __('cart.messages.retrieved'));
+      
     }
 
     /**
@@ -135,38 +158,42 @@ class CartController extends Controller
      */
     public function addItem(AddToCartRequest $request): JsonResponse
     {
-        $this->authorize('create', CartItem::class);
-        
-        $sanitizedData = $this->sanitizeInput($request->validated());
-        $cart = $this->cartService->getCart(auth()->id());
-        
-        $item = $this->cartService->addToCart(
-            $cart,
-            $sanitizedData['product_id'],
-            $sanitizedData['quantity']
-        );
+        try {
+            $this->authorize('create', CartItem::class);
+            
+            $sanitizedData = $this->sanitizeInput($request->validated());
+            $cart = $this->cartService->getCart(auth()->id());
+            
+            $item = $this->cartService->addToCart(
+                $cart,
+                $sanitizedData['product_id'],
+                $sanitizedData['quantity']
+            );
 
-        Log::info('Product added to cart successfully', [
-            'user_id' => auth()->id(),
-            'product_id' => $sanitizedData['product_id']
-        ]);
+            Log::info('Product added to cart successfully', [
+                'user_id' => auth()->id(),
+                'product_id' => $sanitizedData['product_id']
+            ]);
 
-        return $this->successResponse(
-            new CartItemResource($item),
-            __('cart.messages.item_added')
-        );
+            return $this->successResponse(
+                new CartItemResource($item),
+                __('cart.messages.item_added')
+            );
+        } catch (Throwable $e) {
+            return $this->handleError($e);
+        }
     }
 
     /**
      * Update a cart item's quantity.
      * 
      * @OA\Put(
-     *     path="/api/cart/items/{product_id}",
+     *     path="/api/cart/items/{cartItem}",
      *     summary="Update cart item quantity",
      *     tags={"Cart"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
-     *         name="product_id",
+     *         name="cartItem",
      *         in="path",
      *         required=true,
      *         @OA\Schema(type="integer")
@@ -201,53 +228,25 @@ class CartController extends Controller
      * )
      *
      * @param \App\Http\Requests\Api\UpdateCartItemRequest $request
-     * @param int $product_id
+     * @param \App\Models\CartItem $cartItem
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateItem(UpdateCartItemRequest $request, int $product_id): JsonResponse
+    public function updateItem(UpdateCartItemRequest $request, CartItem $cartItem): JsonResponse
     {
-        try {
-            $cart = $this->cartService->getCart(auth()->id());
-            
-            // Find the cart item by product ID
-            $cartItem = $cart->items()->where('product_id', $product_id)->first();
-            
-            if (!$cartItem) {
-                return $this->errorResponse(
-                    'Cart item not found',
-                    Response::HTTP_NOT_FOUND
-                );
-            }
+        $cart = $this->cartService->getCart(auth()->id());
+        $this->authorize('update', $cartItem);
+        
+        // Load the cart item with its relationships
+        $cartItem->load(['product', 'cart']);
+        
+        $sanitizedData = $this->sanitizeInput($request->validated());
+        
+        $updatedItem = $this->cartService->updateCartItem($cartItem, $sanitizedData['quantity']);
 
-            // Load the cart item with its relationships
-            $cartItem->load(['product', 'cart']);
-            
-            $sanitizedData = $this->sanitizeInput($request->validated());
-            
-            $updatedItem = $this->cartService->updateCartItem($cartItem, $sanitizedData['quantity']);
-
-            Log::info('Cart item updated successfully', [
-                'user_id' => auth()->id(),
-                'cart_item_id' => $cartItem->id,
-                'product_id' => $product_id
-            ]);
-
-            return $this->successResponse(
-                new CartItemResource($updatedItem),
-                __('cart.messages.item_updated')
-            );
-        } catch (\Exception $e) {
-            Log::error('Failed to update cart item', [
-                'error' => $e->getMessage(),
-                'product_id' => $product_id,
-                'user_id' => auth()->id()
-            ]);
-
-            return $this->errorResponse(
-                $e->getMessage(),
-                Response::HTTP_BAD_REQUEST
-            );
-        }
+        return $this->successResponse(
+            new CartItemResource($updatedItem),
+            __('cart.messages.item_updated')
+        );
     }
 
     /**
@@ -281,18 +280,17 @@ class CartController extends Controller
      * @param \App\Models\CartItem $item
      * @return \Illuminate\Http\JsonResponse
      */
-    public function removeItem(CartItem $item): JsonResponse
+    public function removeItem(CartItem $cartItem): JsonResponse
     {
-        $this->authorize('delete', $item);
-        $this->cartService->removeFromCart($item);
+        $this->authorize('delete', $cartItem);
+        $this->cartService->removeFromCart($cartItem);
 
         Log::info('Cart item removed successfully', [
             'user_id' => auth()->id(),
-            'cart_item_id' => $item->id
+            'cart_item_id' => $cartItem->id
         ]);
 
         return $this->successResponse(null, __('cart.messages.item_removed'), Response::HTTP_NO_CONTENT);
-    
     }
 
     /**
@@ -313,13 +311,17 @@ class CartController extends Controller
      */
     public function clear(): JsonResponse
     {
-        $this->authorize('viewAny', CartItem::class);
-        
-        $cart = $this->cartService->getCart(auth()->id());
-        $this->cartService->clearCart($cart);
+        try {
+            $this->authorize('viewAny', CartItem::class);
+            
+            $cart = $this->cartService->getCart(auth()->id());
+            $this->cartService->clearCart($cart);
 
-        Log::info('Cart cleared successfully', ['user_id' => auth()->id()]);
+            Log::info('Cart cleared successfully', ['user_id' => auth()->id()]);
 
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+            return response()->json(null, Response::HTTP_NO_CONTENT);
+        } catch (Throwable $e) {
+            return $this->handleError($e);
+        }
     }
 } 

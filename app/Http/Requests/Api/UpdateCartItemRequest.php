@@ -5,6 +5,7 @@ namespace App\Http\Requests\Api;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\CartItem;
 use App\Policies\CartItemPolicy;
+use Illuminate\Support\Facades\Log;
 
 class UpdateCartItemRequest extends FormRequest
 {
@@ -13,12 +14,7 @@ class UpdateCartItemRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $cartItem = CartItem::with(['user', 'cart'])->findOrFail($this->route('cartItem'));
-        
-        return $this->user() && (
-            $this->user()->id === $cartItem->user_id || 
-            $this->user()->id === $cartItem->cart->user_id
-        );
+        return $this->user() && $this->user()->isCustomer();
     }
 
     /**
@@ -34,7 +30,7 @@ class UpdateCartItemRequest extends FormRequest
                 'integer',
                 'min:1',
                 function ($attribute, $value, $fail) {
-                    $cartItem = CartItem::with('product')->findOrFail($this->route('cartItem'));
+                    $cartItem = $this->route('cartItem');
                     if ($cartItem->product->stock < $value) {
                         $fail(__('cart.messages.insufficient_stock'));
                     }

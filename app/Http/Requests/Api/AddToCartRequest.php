@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Product;
-use App\Policies\CartPolicy;
+use App\Policies\CartItemPolicy;
 
 class AddToCartRequest extends FormRequest
 {
@@ -13,7 +13,7 @@ class AddToCartRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && app(CartPolicy::class)->createItem($this->user());
+        return $this->user() && app(CartItemPolicy::class)->create($this->user());
     }
 
     /**
