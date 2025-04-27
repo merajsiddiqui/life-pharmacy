@@ -5,6 +5,65 @@ namespace App\Http\Requests\Api;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Product;
 
+/**
+ * @OA\Schema(
+ *     schema="OrderRequest",
+ *     title="Order Request",
+ *     description="Request schema for creating a new order",
+ *     required={"shipping_address", "phone_number", "payment_method", "payment_status", "shipping_method"},
+ *     @OA\Property(
+ *         property="shipping_address",
+ *         type="string",
+ *         maxLength=255,
+ *         example="123 Main St, City, Country",
+ *         description="Shipping address for the order"
+ *     ),
+ *     @OA\Property(
+ *         property="phone_number",
+ *         type="string",
+ *         maxLength=20,
+ *         example="+1234567890",
+ *         description="Contact phone number"
+ *     ),
+ *     @OA\Property(
+ *         property="notes",
+ *         type="string",
+ *         maxLength=1000,
+ *         nullable=true,
+ *         example="Please deliver in the evening",
+ *         description="Additional notes for the order"
+ *     ),
+ *     @OA\Property(
+ *         property="payment_method",
+ *         type="string",
+ *         enum={"credit_card", "cash_on_delivery", "wallet"},
+ *         example="credit_card",
+ *         description="Payment method for the order"
+ *     ),
+ *     @OA\Property(
+ *         property="payment_status",
+ *         type="string",
+ *         enum={"pending", "paid", "failed"},
+ *         example="pending",
+ *         description="Payment status of the order"
+ *     ),
+ *     @OA\Property(
+ *         property="shipping_method",
+ *         type="string",
+ *         enum={"standard", "express"},
+ *         example="standard",
+ *         description="Shipping method for the order"
+ *     ),
+ *     @OA\Property(
+ *         property="discount_code",
+ *         type="string",
+ *         maxLength=50,
+ *         nullable=true,
+ *         example="SUMMER2024",
+ *         description="Discount code to apply to the order"
+ *     )
+ * )
+ */
 class CreateOrderRequest extends FormRequest
 {
     /**

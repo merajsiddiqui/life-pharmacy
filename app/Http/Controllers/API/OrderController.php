@@ -107,20 +107,12 @@ class OrderController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Unauthorized"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UnauthorizedResponse")
      *     ),
      *     @OA\Response(
      *         response=403,
      *         description="Forbidden",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="You do not have permission to view orders"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ForbiddenResponse")
      *     )
      * )
      *
@@ -149,60 +141,7 @@ class OrderController extends Controller
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(
-     *             required={"shipping_address", "phone_number", "payment_method", "payment_status", "shipping_method"},
-     *             @OA\Property(
-     *                 property="shipping_address",
-     *                 type="string",
-     *                 maxLength=255,
-     *                 example="123 Main St, City, Country",
-     *                 description="Shipping address for the order"
-     *             ),
-     *             @OA\Property(
-     *                 property="phone_number",
-     *                 type="string",
-     *                 maxLength=20,
-     *                 example="+1234567890",
-     *                 description="Contact phone number"
-     *             ),
-     *             @OA\Property(
-     *                 property="notes",
-     *                 type="string",
-     *                 maxLength=1000,
-     *                 nullable=true,
-     *                 example="Please deliver in the evening",
-     *                 description="Additional notes for the order"
-     *             ),
-     *             @OA\Property(
-     *                 property="payment_method",
-     *                 type="string",
-     *                 enum={"credit_card", "cash_on_delivery", "wallet"},
-     *                 example="credit_card",
-     *                 description="Payment method for the order"
-     *             ),
-     *             @OA\Property(
-     *                 property="payment_status",
-     *                 type="string",
-     *                 enum={"pending", "paid", "failed"},
-     *                 example="pending",
-     *                 description="Payment status of the order"
-     *             ),
-     *             @OA\Property(
-     *                 property="shipping_method",
-     *                 type="string",
-     *                 enum={"standard", "express"},
-     *                 example="standard",
-     *                 description="Shipping method for the order"
-     *             ),
-     *             @OA\Property(
-     *                 property="discount_code",
-     *                 type="string",
-     *                 maxLength=50,
-     *                 nullable=true,
-     *                 example="SUMMER2024",
-     *                 description="Discount code to apply to the order"
-     *             )
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/OrderRequest")
      *     ),
      *     @OA\Response(
      *         response=201,
@@ -219,48 +158,12 @@ class OrderController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Unauthorized"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UnauthorizedResponse")
      *     ),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="The given data was invalid"),
-     *             @OA\Property(
-     *                 property="errors",
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="shipping_address",
-     *                     type="array",
-     *                     @OA\Items(type="string", example="The shipping address field is required")
-     *                 ),
-     *                 @OA\Property(
-     *                     property="phone_number",
-     *                     type="array",
-     *                     @OA\Items(type="string", example="The phone number field is required")
-     *                 ),
-     *                 @OA\Property(
-     *                     property="payment_method",
-     *                     type="array",
-     *                     @OA\Items(type="string", example="The payment method field is required")
-     *                 ),
-     *                 @OA\Property(
-     *                     property="payment_status",
-     *                     type="array",
-     *                     @OA\Items(type="string", example="The payment status field is required")
-     *                 ),
-     *                 @OA\Property(
-     *                     property="shipping_method",
-     *                     type="array",
-     *                     @OA\Items(type="string", example="The shipping method field is required")
-     *                 )
-     *             )
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
      *     )
      * )
      *
@@ -354,29 +257,17 @@ class OrderController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Unauthorized"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UnauthorizedResponse")
      *     ),
      *     @OA\Response(
      *         response=403,
      *         description="Forbidden",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="You do not have permission to view this order"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ForbiddenResponse")
      *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Order not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Order not found"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
      *     )
      * )
      *
@@ -428,38 +319,22 @@ class OrderController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Unauthorized"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UnauthorizedResponse")
      *     ),
      *     @OA\Response(
      *         response=403,
      *         description="Forbidden",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="You do not have permission to cancel this order"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ForbiddenResponse")
      *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Order not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Order not found"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
      *     ),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="The order cannot be cancelled"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
      *     )
      * )
      *
@@ -495,57 +370,6 @@ class OrderController extends Controller
             new OrderResource($order),
             __('orders.messages.cancelled')
         );
-    }
-
-    /**
-     * Remove the specified order.
-     * 
-     * @OA\Delete(
-     *     path="/api/orders/{order}",
-     *     summary="Delete an order",
-     *     tags={"Orders"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="order",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Order deleted successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="Order deleted successfully"),
-     *             @OA\Property(property="data", type="null")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Order not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Order not found"),
-     *             @OA\Property(property="data", type="null")
-     *         )
-     *     )
-     * )
-     *
-     * @param \App\Models\Order $order
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function destroy(Order $order): JsonResponse
-    {
-        $this->authorize('delete', $order);
-        
-        $this->orderService->deleteOrder($order);
-
-        Log::info('Order deleted successfully', [
-            'order_id' => $order->id,
-            'user_id' => auth()->id()
-        ]);
-
-        return $this->deletedResponse(__('orders.messages.deleted'));
     }
 
     /**
@@ -591,46 +415,22 @@ class OrderController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Unauthorized"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UnauthorizedResponse")
      *     ),
      *     @OA\Response(
      *         response=403,
      *         description="Forbidden",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="You do not have permission to update this order"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ForbiddenResponse")
      *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Order not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="Order not found"),
-     *             @OA\Property(property="data", type="null")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
      *     ),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="The given data was invalid"),
-     *             @OA\Property(
-     *                 property="errors",
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="status",
-     *                     type="array",
-     *                     @OA\Items(type="string", example="The status field is required")
-     *                 )
-     *             )
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
      *     )
      * )
      *

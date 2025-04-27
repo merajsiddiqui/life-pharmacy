@@ -1081,20 +1081,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthorized"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/UnauthorizedResponse"
                                 }
                             }
                         }
@@ -1104,20 +1091,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "You do not have permission to view orders"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/ForbiddenResponse"
                                 }
                             }
                         }
@@ -1141,71 +1115,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "shipping_address",
-                                    "phone_number",
-                                    "payment_method",
-                                    "payment_status",
-                                    "shipping_method"
-                                ],
-                                "properties": {
-                                    "shipping_address": {
-                                        "description": "Shipping address for the order",
-                                        "type": "string",
-                                        "maxLength": 255,
-                                        "example": "123 Main St, City, Country"
-                                    },
-                                    "phone_number": {
-                                        "description": "Contact phone number",
-                                        "type": "string",
-                                        "maxLength": 20,
-                                        "example": "+1234567890"
-                                    },
-                                    "notes": {
-                                        "description": "Additional notes for the order",
-                                        "type": "string",
-                                        "maxLength": 1000,
-                                        "example": "Please deliver in the evening",
-                                        "nullable": true
-                                    },
-                                    "payment_method": {
-                                        "description": "Payment method for the order",
-                                        "type": "string",
-                                        "enum": [
-                                            "credit_card",
-                                            "cash_on_delivery",
-                                            "wallet"
-                                        ],
-                                        "example": "credit_card"
-                                    },
-                                    "payment_status": {
-                                        "description": "Payment status of the order",
-                                        "type": "string",
-                                        "enum": [
-                                            "pending",
-                                            "paid",
-                                            "failed"
-                                        ],
-                                        "example": "pending"
-                                    },
-                                    "shipping_method": {
-                                        "description": "Shipping method for the order",
-                                        "type": "string",
-                                        "enum": [
-                                            "standard",
-                                            "express"
-                                        ],
-                                        "example": "standard"
-                                    },
-                                    "discount_code": {
-                                        "description": "Discount code to apply to the order",
-                                        "type": "string",
-                                        "maxLength": 50,
-                                        "example": "SUMMER2024",
-                                        "nullable": true
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/OrderRequest"
                             }
                         }
                     }
@@ -1239,20 +1149,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthorized"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/UnauthorizedResponse"
                                 }
                             }
                         }
@@ -1262,57 +1159,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The given data was invalid"
-                                        },
-                                        "errors": {
-                                            "properties": {
-                                                "shipping_address": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The shipping address field is required"
-                                                    }
-                                                },
-                                                "phone_number": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The phone number field is required"
-                                                    }
-                                                },
-                                                "payment_method": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The payment method field is required"
-                                                    }
-                                                },
-                                                "payment_status": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The payment status field is required"
-                                                    }
-                                                },
-                                                "shipping_method": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The shipping method field is required"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
                                 }
                             }
                         }
@@ -1373,20 +1220,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthorized"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/UnauthorizedResponse"
                                 }
                             }
                         }
@@ -1396,20 +1230,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "You do not have permission to view this order"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/ForbiddenResponse"
                                 }
                             }
                         }
@@ -1419,20 +1240,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Order not found"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/NotFoundResponse"
                                 }
                             }
                         }
@@ -1517,20 +1325,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthorized"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/UnauthorizedResponse"
                                 }
                             }
                         }
@@ -1540,20 +1335,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "You do not have permission to update this order"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/ForbiddenResponse"
                                 }
                             }
                         }
@@ -1563,20 +1345,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Order not found"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/NotFoundResponse"
                                 }
                             }
                         }
@@ -1586,29 +1355,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The given data was invalid"
-                                        },
-                                        "errors": {
-                                            "properties": {
-                                                "status": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The status field is required"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
                                 }
                             }
                         }
@@ -1669,20 +1416,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthorized"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/UnauthorizedResponse"
                                 }
                             }
                         }
@@ -1692,20 +1426,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "You do not have permission to cancel this order"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/ForbiddenResponse"
                                 }
                             }
                         }
@@ -1715,20 +1436,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Order not found"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/NotFoundResponse"
                                 }
                             }
                         }
@@ -1738,93 +1446,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The order cannot be cancelled"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/orders/{order}": {
-            "delete": {
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Delete an order",
-                "description": "Remove the specified order.",
-                "operationId": "983c7813fdcb0d66fd5d1386fa8f6f22",
-                "parameters": [
-                    {
-                        "name": "order",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order deleted successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Order deleted successfully"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Order not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Order not found"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
                                 }
                             }
                         }
@@ -2306,6 +1928,75 @@
     },
     "components": {
         "schemas": {
+            "OrderRequest": {
+                "title": "Order Request",
+                "description": "Request schema for creating a new order",
+                "required": [
+                    "shipping_address",
+                    "phone_number",
+                    "payment_method",
+                    "payment_status",
+                    "shipping_method"
+                ],
+                "properties": {
+                    "shipping_address": {
+                        "description": "Shipping address for the order",
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "123 Main St, City, Country"
+                    },
+                    "phone_number": {
+                        "description": "Contact phone number",
+                        "type": "string",
+                        "maxLength": 20,
+                        "example": "+1234567890"
+                    },
+                    "notes": {
+                        "description": "Additional notes for the order",
+                        "type": "string",
+                        "maxLength": 1000,
+                        "example": "Please deliver in the evening",
+                        "nullable": true
+                    },
+                    "payment_method": {
+                        "description": "Payment method for the order",
+                        "type": "string",
+                        "enum": [
+                            "credit_card",
+                            "cash_on_delivery",
+                            "wallet"
+                        ],
+                        "example": "credit_card"
+                    },
+                    "payment_status": {
+                        "description": "Payment status of the order",
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "paid",
+                            "failed"
+                        ],
+                        "example": "pending"
+                    },
+                    "shipping_method": {
+                        "description": "Shipping method for the order",
+                        "type": "string",
+                        "enum": [
+                            "standard",
+                            "express"
+                        ],
+                        "example": "standard"
+                    },
+                    "discount_code": {
+                        "description": "Discount code to apply to the order",
+                        "type": "string",
+                        "maxLength": 50,
+                        "example": "SUMMER2024",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "CartItemResource": {
                 "title": "Cart Item Resource",
                 "description": "Shopping cart item resource representation",
@@ -2616,6 +2307,87 @@
                             },
                             "type": "object"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "UnauthorizedResponse": {
+                "title": "Unauthorized Response",
+                "description": "Response when user is not authenticated",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "error"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Unauthorized"
+                    },
+                    "data": {
+                        "type": "null"
+                    }
+                },
+                "type": "object"
+            },
+            "ForbiddenResponse": {
+                "title": "Forbidden Response",
+                "description": "Response when user doesn't have permission",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "error"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "You do not have permission to perform this action"
+                    },
+                    "data": {
+                        "type": "null"
+                    }
+                },
+                "type": "object"
+            },
+            "NotFoundResponse": {
+                "title": "Not Found Response",
+                "description": "Response when resource is not found",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "error"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Resource not found"
+                    },
+                    "data": {
+                        "type": "null"
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationErrorResponse": {
+                "title": "Validation Error Response",
+                "description": "Response when validation fails",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "error"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "The given data was invalid"
+                    },
+                    "errors": {
+                        "properties": {
+                            "field_name": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "example": "The field name field is required"
+                                }
+                            }
+                        },
+                        "type": "object"
                     }
                 },
                 "type": "object"
