@@ -17,6 +17,24 @@ A robust RESTful API for managing a pharmacy's product catalog, built with Larav
 - Comprehensive test suite with high coverage
 - Localized middleware messages
 
+## Screenshots
+
+### API Documentation
+![API Documentation](docs/screenshots/api-docs.png)
+*Swagger UI documentation for the API endpoints*
+
+### API Response Examples
+![API Response](docs/screenshots/api-response.png)
+*Example of API response with localized messages*
+
+### Docker Services
+![Docker Services](docs/screenshots/docker-services.png)
+*Running Docker services for the application*
+
+### Test Coverage
+![Test Coverage](docs/screenshots/test-coverage.png)
+*Test coverage report showing comprehensive testing*
+
 ## Prerequisites
 
 - Docker
@@ -217,15 +235,5 @@ docker-compose logs -f
 ```bash
 docker-compose down
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
