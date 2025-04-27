@@ -21,15 +21,14 @@ A robust RESTful API for managing a pharmacy's product catalog, built with Larav
 
 ### API Documentation
 ![API Documentation](docs/screenshots/api-docs.png)
-*Swagger UI documentation for the API endpoints*
+*[Swagger UI documentation](http://127.0.0.1:8000/api/documentation) for the API endpoints*
+
+
+
 
 ### API Response Examples
 ![API Response](docs/screenshots/api-response.png)
 *Example of API response with localized messages*
-
-### Docker Services
-![Docker Services](docs/screenshots/docker-services.png)
-*Running Docker services for the application*
 
 ### Test Coverage
 ![Test Coverage](docs/screenshots/test-coverage.png)
