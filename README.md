@@ -44,7 +44,7 @@ A robust RESTful API for managing a pharmacy's product catalog, built with Larav
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/life-pharmacy.git
+git clone https://github.com/merajsiddiqui/life-pharmacy.git
 cd life-pharmacy
 ```
 
