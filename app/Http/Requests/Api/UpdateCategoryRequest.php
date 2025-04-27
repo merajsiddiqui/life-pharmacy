@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Policies\CategoryPolicy;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCategoryRequest extends FormRequest
@@ -11,7 +12,7 @@ class UpdateCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && app(CategoryPolicy::class)->create($this->user());
+        return $this->user() && app(CategoryPolicy::class)->update($this->user());
     }
 
     /**

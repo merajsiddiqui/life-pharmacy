@@ -22,12 +22,10 @@ class CategoryControllerTest extends TestCase
 
     /**
      * Set up the test environment.
-     * Disables exception handling to see actual errors during testing.
      */
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutExceptionHandling();
     }
 
     /**
@@ -229,7 +227,15 @@ class CategoryControllerTest extends TestCase
             ->postJson('/api/categories', []);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['name']);
+            ->assertJson([
+                'message' => 'Validation failed',
+                'errors' => [
+                    'name' => ['The category name is required.'],
+                    'slug' => ['The category slug is required.']
+                ],
+                'status' => 'error',
+                'data' => null
+            ]);
     }
 
     /**
@@ -246,16 +252,22 @@ class CategoryControllerTest extends TestCase
         ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
-        $existingCategory = Category::factory()->create();
-        $categoryData = [
-            'name' => $existingCategory->name,
-            'description' => 'Test Description'
-        ];
+        $existingCategory = Category::factory()->create(['name' => 'Test Category']);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->postJson('/api/categories', $categoryData);
+            ->postJson('/api/categories', [
+                'name' => 'Test Category',
+                'description' => 'Another description'
+            ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['name']);
+            ->assertJson([
+                'message' => 'Validation failed',
+                'errors' => [
+                    'slug' => ['This category slug is already in use.']
+                ],
+                'status' => 'error',
+                'data' => null
+            ]);
     }
 } 
