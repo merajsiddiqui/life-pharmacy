@@ -94,16 +94,20 @@ class OrderControllerTest extends TestCase
         $product = Product::factory()->create([
             'stock' => 10
         ]);
+
+        // Add item to cart first
+        $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/cart/items', [
+                'product_id' => $product->id,
+                'quantity' => 2
+            ]);
+
         $orderData = [
-            'items' => [
-                [
-                    'product_id' => $product->id,
-                    'quantity' => 2
-                ]
-            ],
             'shipping_address' => '123 Test Street, Test City',
             'phone_number' => '1234567890',
-            'payment_method' => 'credit_card'
+            'payment_method' => 'credit_card',
+            'payment_status' => 'pending',
+            'shipping_method' => 'standard'
         ];
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
@@ -211,7 +215,7 @@ class OrderControllerTest extends TestCase
      */
     public function test_validates_required_fields_on_create()
     {
-        $this->withExceptionHandling(); // Enable exception handling
+        $this->withExceptionHandling();
 
         $user = User::factory()->create([
             'email' => 'test@example.com',
@@ -224,10 +228,11 @@ class OrderControllerTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors([
-                'items',
                 'shipping_address',
                 'phone_number',
-                'payment_method'
+                'payment_method',
+                'payment_status',
+                'shipping_method'
             ]);
     }
 
