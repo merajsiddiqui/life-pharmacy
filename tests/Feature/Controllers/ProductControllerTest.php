@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Role;
 
 /**
  * Test suite for the ProductController API endpoints.
@@ -28,7 +29,23 @@ class ProductControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Only disable exception handling for non-validation tests
         $this->withoutExceptionHandling();
+
+        // Create admin role
+        $adminRole = Role::factory()->create([
+            'name' => 'Administrator',
+            'slug' => 'admin',
+            'description' => 'System Administrator'
+        ]);
+
+        // Create test user with admin role
+        $this->user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
+        $this->user->roles()->attach($adminRole);
+        $this->token = $this->user->createToken('test-token')->plainTextToken;
     }
 
     /**
@@ -48,13 +65,7 @@ class ProductControllerTest extends TestCase
      */
     public function test_can_list_products()
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123')
-        ]);
-        $token = $user->createToken('test-token')->plainTextToken;
-
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token)
             ->getJson('/api/products');
 
         $response->assertStatus(200)
@@ -82,14 +93,8 @@ class ProductControllerTest extends TestCase
      */
     public function test_can_list_products_in_arabic()
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123')
-        ]);
-        $token = $user->createToken('test-token')->plainTextToken;
-
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer ' . $this->token,
             'Accept-Language' => 'ar'
         ])->getJson('/api/products');
 
@@ -119,12 +124,6 @@ class ProductControllerTest extends TestCase
      */
     public function test_can_create_product()
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123')
-        ]);
-        $token = $user->createToken('test-token')->plainTextToken;
-
         $category = Category::factory()->create();
         $productData = [
             'name' => 'Test Product',
@@ -134,7 +133,7 @@ class ProductControllerTest extends TestCase
             'category_id' => $category->id
         ];
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token)
             ->postJson('/api/products', $productData);
 
         $response->assertStatus(201)
@@ -160,15 +159,9 @@ class ProductControllerTest extends TestCase
      */
     public function test_can_show_product()
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123')
-        ]);
-        $token = $user->createToken('test-token')->plainTextToken;
-
         $product = Product::factory()->create();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token)
             ->getJson("/api/products/{$product->id}");
 
         $response->assertStatus(200)
@@ -195,12 +188,6 @@ class ProductControllerTest extends TestCase
      */
     public function test_can_update_product()
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123')
-        ]);
-        $token = $user->createToken('test-token')->plainTextToken;
-
         $product = Product::factory()->create();
         $updateData = [
             'name' => 'Updated Product',
@@ -209,7 +196,7 @@ class ProductControllerTest extends TestCase
             'stock' => 20
         ];
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token)
             ->putJson("/api/products/{$product->id}", $updateData);
 
         $response->assertStatus(200)
@@ -236,20 +223,15 @@ class ProductControllerTest extends TestCase
      */
     public function test_can_delete_product()
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123')
-        ]);
-        $token = $user->createToken('test-token')->plainTextToken;
-
         $product = Product::factory()->create();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token)
             ->deleteJson("/api/products/{$product->id}");
 
         $response->assertStatus(204);
-
-        $this->assertDatabaseMissing('products', [
+        
+        // Check that the product is soft deleted
+        $this->assertSoftDeleted('products', [
             'id' => $product->id
         ]);
     }
@@ -262,17 +244,13 @@ class ProductControllerTest extends TestCase
      */
     public function test_validates_required_fields_on_create()
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123')
-        ]);
-        $token = $user->createToken('test-token')->plainTextToken;
-
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $this->withExceptionHandling();
+        
+        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token)
             ->postJson('/api/products', []);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['name', 'price', 'stock', 'category_id']);
+            ->assertInvalid(['name', 'description', 'price', 'stock', 'category_id']);
     }
 
     /**
@@ -283,13 +261,9 @@ class ProductControllerTest extends TestCase
      */
     public function test_validates_numeric_fields()
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123')
-        ]);
-        $token = $user->createToken('test-token')->plainTextToken;
-
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $this->withExceptionHandling();
+        
+        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token)
             ->postJson('/api/products', [
                 'name' => 'Test Product',
                 'description' => 'Test Description',
@@ -299,7 +273,7 @@ class ProductControllerTest extends TestCase
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['price', 'stock']);
+            ->assertInvalid(['price', 'stock']);
     }
 
     /**
@@ -310,22 +284,18 @@ class ProductControllerTest extends TestCase
      */
     public function test_validates_category_exists()
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123')
-        ]);
-        $token = $user->createToken('test-token')->plainTextToken;
-
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $this->withExceptionHandling();
+        
+        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token)
             ->postJson('/api/products', [
                 'name' => 'Test Product',
                 'description' => 'Test Description',
                 'price' => 100,
                 'stock' => 10,
-                'category_id' => 999
+                'category_id' => 999 // Non-existent category
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['category_id']);
+            ->assertInvalid(['category_id']);
     }
 } 
