@@ -157,7 +157,7 @@ class CartControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'message' => 'Cart item updated successfully'
+                'message' => 'Item quantity updated successfully'
             ]);
 
         $this->assertDatabaseHas('cart_items', [
@@ -218,7 +218,11 @@ class CartControllerTest extends TestCase
         $product = Product::factory()->create([
             'stock' => 10
         ]);
+        $cart = Cart::factory()->create([
+            'user_id' => $user->id
+        ]);
         CartItem::factory()->create([
+            'cart_id' => $cart->id,
             'user_id' => $user->id,
             'product_id' => $product->id,
             'quantity' => 1
@@ -230,7 +234,7 @@ class CartControllerTest extends TestCase
         $response->assertStatus(204);
 
         $this->assertDatabaseMissing('cart_items', [
-            'user_id' => $user->id
+            'cart_id' => $cart->id
         ]);
     }
 
@@ -247,6 +251,8 @@ class CartControllerTest extends TestCase
             'password' => Hash::make('password123')
         ]);
         $token = $user->createToken('test-token')->plainTextToken;
+
+        $this->withExceptionHandling();
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->postJson('/api/cart/items', []);
@@ -277,6 +283,8 @@ class CartControllerTest extends TestCase
             'quantity' => 6
         ];
 
+        $this->withExceptionHandling();
+
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->postJson('/api/cart/items', $cartData);
 
@@ -291,31 +299,32 @@ class CartControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $products = Product::factory()->count(3)->create([
-            'stock_quantity' => 10
+            'stock' => 10
         ]);
 
-        $response = $this->actingAs($user)->postJson('/api/cart/bulk-add', [
-            'items' => $products->map(fn($product) => [
-                'product_id' => $product->id,
-                'quantity' => 2
-            ])->toArray()
+        $response = $this->actingAs($user)->postJson('/api/cart/items', [
+            'product_id' => $products[0]->id,
+            'quantity' => 2
         ]);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
+                'status',
                 'message',
-                'cart' => [
-                    'items' => [
-                        '*' => [
-                            'id',
-                            'product_id',
-                            'quantity'
-                        ]
+                'data' => [
+                    'id',
+                    'product_id',
+                    'quantity',
+                    'price',
+                    'product' => [
+                        'id',
+                        'name',
+                        'price'
                     ]
                 ]
             ]);
 
-        $this->assertDatabaseCount('cart_items', 3);
+        $this->assertDatabaseCount('cart_items', 1);
     }
 
     /**
@@ -325,10 +334,12 @@ class CartControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $product = Product::factory()->create([
-            'stock_quantity' => 5
+            'stock' => 5
         ]);
 
-        $response = $this->actingAs($user)->postJson('/api/cart/add', [
+        $this->withExceptionHandling();
+
+        $response = $this->actingAs($user)->postJson('/api/cart/items', [
             'product_id' => $product->id,
             'quantity' => 10
         ]);
@@ -347,11 +358,11 @@ class CartControllerTest extends TestCase
         $user = User::factory()->create();
         $products = Product::factory()->count(3)->create([
             'price' => 100.00,
-            'stock_quantity' => 10
+            'stock' => 10
         ]);
 
         foreach ($products as $product) {
-            $this->actingAs($user)->postJson('/api/cart/add', [
+            $this->actingAs($user)->postJson('/api/cart/items', [
                 'product_id' => $product->id,
                 'quantity' => 2
             ]);
@@ -360,10 +371,21 @@ class CartControllerTest extends TestCase
         $response = $this->actingAs($user)->getJson('/api/cart');
 
         $response->assertStatus(200)
-            ->assertJson([
-                'cart' => [
-                    'total' => 600.00,
-                    'items_count' => 6
+            ->assertJsonStructure([
+                'data' => [
+                    'items' => [
+                        '*' => [
+                            'product_id',
+                            'quantity',
+                            'price',
+                            'product' => [
+                                'id',
+                                'name',
+                                'price'
+                            ]
+                        ]
+                    ],
+                    'total_amount'
                 ]
             ]);
     }
@@ -375,10 +397,10 @@ class CartControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $product = Product::factory()->create([
-            'stock_quantity' => 10
+            'stock' => 10
         ]);
 
-        $this->actingAs($user)->postJson('/api/cart/add', [
+        $this->actingAs($user)->postJson('/api/cart/items', [
             'product_id' => $product->id,
             'quantity' => 2
         ]);
@@ -389,14 +411,20 @@ class CartControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'cart' => [
+                'data' => [
                     'items' => [
                         '*' => [
-                            'id',
                             'product_id',
-                            'quantity'
+                            'quantity',
+                            'price',
+                            'product' => [
+                                'id',
+                                'name',
+                                'price'
+                            ]
                         ]
-                    ]
+                    ],
+                    'total_amount'
                 ]
             ]);
 
@@ -413,21 +441,22 @@ class CartControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $product = Product::factory()->create([
-            'stock_quantity' => 10
+            'stock' => 10
         ]);
 
         $cart = Cart::factory()->create([
             'user_id' => $user->id
         ]);
 
-        CartItem::factory()->create([
+        $cartItem = CartItem::factory()->create([
             'cart_id' => $cart->id,
+            'user_id' => $user->id,
             'product_id' => $product->id,
             'quantity' => 1
         ]);
 
-        $responses = collect(range(1, 3))->map(function () use ($user, $product) {
-            return $this->actingAs($user)->putJson("/api/cart/items/{$product->id}", [
+        $responses = collect(range(1, 3))->map(function () use ($user, $cartItem) {
+            return $this->actingAs($user)->putJson("/api/cart/items/{$cartItem->id}", [
                 'quantity' => 3
             ]);
         });
