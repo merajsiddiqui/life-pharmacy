@@ -85,8 +85,7 @@ trait ApiResponse
     {
         return response()->json([
             'status' => 'error',
-            'message' => $message,
-            'data' => null
+            'message' => $message
         ], $statusCode);
     }
 
