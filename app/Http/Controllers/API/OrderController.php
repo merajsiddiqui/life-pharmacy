@@ -9,6 +9,7 @@ use App\Http\Requests\Api\CreateOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Services\OrderService;
+use App\Services\CartService;
 use App\Traits\ApiResponse;
 use App\Traits\SanitizesInput;
 use Illuminate\Http\JsonResponse;
@@ -31,9 +32,11 @@ class OrderController extends Controller
      * OrderController constructor.
      *
      * @param \App\Services\OrderService $orderService
+     * @param \App\Services\CartService $cartService
      */
     public function __construct(
-        protected OrderService $orderService
+        protected OrderService $orderService,
+        protected CartService $cartService
     ) {
     }
 
@@ -80,7 +83,7 @@ class OrderController extends Controller
 
         return $this->successResponse(
             OrderResource::collection($orders),
-            __('order.messages.retrieved')
+            __('orders.messages.list_retrieved')
         );
     }
 
@@ -142,13 +145,47 @@ class OrderController extends Controller
     {
         $this->authorize('create', Order::class);
         
+        $cart = $this->cartService->getCart(auth()->id());
+        
+        if ($cart->items->isEmpty()) {
+            return $this->errorResponse(
+                __('orders.validation.cart_empty'),
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        // Validate stock availability for all items
+        foreach ($cart->items as $item) {
+            $product = $item->product;
+            if ($product->stock === 0) {
+                return $this->errorResponse(
+                    __('orders.validation.product_out_of_stock'),
+                    Response::HTTP_UNPROCESSABLE_ENTITY
+                );
+            }
+            
+            if ($product->stock < $item->quantity) {
+                return $this->errorResponse(
+                    __('orders.validation.insufficient_stock'),
+                    Response::HTTP_UNPROCESSABLE_ENTITY
+                );
+            }
+        }
+
         $sanitizedData = $this->sanitizeInput($request->validated());
         $order = $this->orderService->createOrder([
             'user_id' => auth()->id(),
             'shipping_address' => $sanitizedData['shipping_address'],
             'phone_number' => $sanitizedData['phone_number'],
-            'notes' => $sanitizedData['notes'] ?? null
-        ], $sanitizedData['items']);
+            'notes' => $sanitizedData['notes'] ?? null,
+            'payment_method' => $sanitizedData['payment_method'],
+            'payment_status' => $sanitizedData['payment_status'],
+            'shipping_method' => $sanitizedData['shipping_method'],
+            'discount_code' => $sanitizedData['discount_code'] ?? null
+        ], $cart->items);
+
+        // Clear the cart after successful order creation
+        $this->cartService->clearCart($cart);
 
         Log::info('Order created successfully', [
             'order_id' => $order->id,
@@ -157,7 +194,7 @@ class OrderController extends Controller
 
         return $this->createdResponse(
             new OrderResource($order),
-            __('order.messages.created')
+            __('orders.messages.created')
         );
     }
 
@@ -244,7 +281,21 @@ class OrderController extends Controller
      */
     public function cancel(Order $order): JsonResponse
     {
-        $this->authorize('update', $order);
+        if ($order->status === 'cancelled') {
+            return $this->errorResponse(
+                __('orders.validation.already_cancelled'),
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        $this->authorize('cancel', $order);
+        
+        if ($order->status !== 'pending') {
+            return $this->errorResponse(
+                __('orders.validation.cannot_cancel'),
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
+        }
         
         $this->orderService->cancelOrder($order);
 
@@ -255,7 +306,7 @@ class OrderController extends Controller
 
         return $this->successResponse(
             new OrderResource($order),
-            __('order.messages.cancelled')
+            __('orders.messages.cancelled')
         );
     }
 

@@ -41,6 +41,14 @@ class OrderPolicy
     }
 
     /**
+     * Determine whether the user can cancel the order.
+     */
+    public function cancel(User $user, Order $order): bool
+    {
+        return $user->isAdmin() || ($user->isCustomer() && $user->id === $order->user_id && $order->status === 'pending');
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Order $order): bool

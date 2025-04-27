@@ -42,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);
     Route::put('/orders/{order}', [OrderController::class, 'update']);
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
     
     // Product routes (protected write operations)
     Route::post('/products', [ProductController::class, 'store']);

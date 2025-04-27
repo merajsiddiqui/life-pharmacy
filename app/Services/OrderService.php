@@ -15,7 +15,7 @@ class OrderService
     ) {
     }
 
-    public function createOrder(array $data, array $items): Order
+    public function createOrder(array $data, $items): Order
     {
         try {
             DB::beginTransaction();
@@ -23,43 +23,56 @@ class OrderService
             $totalAmount = 0;
             $orderItems = [];
 
-            // Validate stock availability for all items first
-            foreach ($items as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                
-                if ($product->stock === 0) {
-                    throw new \Exception(__('orders.validation.product_out_of_stock'));
-                }
-                
-                if ($product->stock < $item['quantity']) {
-                    throw new \Exception(__('orders.validation.insufficient_stock'));
-                }
-            }
-
             // Process order items and calculate total
             foreach ($items as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                $subtotal = $product->price * $item['quantity'];
+                $product = $item->product;
+                $subtotal = $product->price * $item->quantity;
                 $totalAmount += $subtotal;
 
                 $orderItems[] = [
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
+                    'product_id' => $product->id,
+                    'quantity' => $item->quantity,
                     'unit_price' => $product->price,
                     'subtotal' => $subtotal
                 ];
 
                 // Update product stock
-                $product->decrement('stock', $item['quantity']);
+                $product->decrement('stock', $item->quantity);
             }
+
+            // Calculate shipping cost based on method (default to standard if not provided)
+            $shippingMethod = $data['shipping_method'] ?? 'standard';
+            $shippingCost = $shippingMethod === 'express' ? 20.00 : 10.00;
+
+            // Calculate tax (assuming 5% tax rate)
+            $taxAmount = $totalAmount * 0.05;
+
+            // Calculate discount if discount code is provided
+            $discountAmount = 0;
+            if (!empty($data['discount_code'])) {
+                // Here you would typically validate the discount code and calculate the discount
+                // For now, we'll use a simple 10% discount if a code is provided
+                $discountAmount = $totalAmount * 0.10;
+            }
+
+            // Calculate final total
+            $finalTotal = $totalAmount + $shippingCost + $taxAmount - $discountAmount;
 
             $order = $this->orderRepository->create([
                 'user_id' => $data['user_id'],
-                'total_amount' => $totalAmount,
+                'total_amount' => $finalTotal,
                 'shipping_address' => $data['shipping_address'],
                 'phone_number' => $data['phone_number'],
                 'notes' => $data['notes'] ?? null,
-                'status' => 'pending'
+                'status' => 'pending',
+                'payment_method' => $data['payment_method'],
+                'payment_status' => $data['payment_status'],
+                'shipping_method' => $shippingMethod,
+                'shipping_cost' => $shippingCost,
+                'tax_amount' => $taxAmount,
+                'discount_amount' => $discountAmount,
+                'discount_code' => $data['discount_code'] ?? null,
+                'subtotal' => $totalAmount
             ]);
 
             foreach ($orderItems as $item) {
@@ -130,5 +143,34 @@ class OrderService
     {
         $order->update(['status' => $status]);
         return $order->load('items.product');
+    }
+
+    /**
+     * Cancel an order and restore product stock.
+     *
+     * @param \App\Models\Order $order
+     * @return \App\Models\Order
+     */
+    public function cancelOrder(Order $order): Order
+    {
+        try {
+            DB::beginTransaction();
+
+            // Restore product stock
+            foreach ($order->items as $item) {
+                $product = $item->product;
+                $product->increment('stock', $item->quantity);
+            }
+
+            // Update order status
+            $order->update(['status' => 'cancelled']);
+
+            DB::commit();
+
+            return $order->load('items.product');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 } 
