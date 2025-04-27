@@ -8,7 +8,7 @@ This guide will help you set up and run the Life Pharmacy API on your local mach
 - Composer
 - MySQL 8.0 or higher
 - Redis
-- Nginx or Apache
+- Nginx or Apache (optional)
 - Git
 
 ## Setup Steps
@@ -59,9 +59,23 @@ php artisan migrate
 chmod -R 775 storage bootstrap/cache
 ```
 
-## Web Server Configuration
+## Running the Application
 
-### Nginx Configuration
+You have two options to run the application:
+
+### Option 1: Using PHP's Built-in Development Server (Recommended for Development)
+
+This is the simplest way to run the application during development:
+
+```bash
+php artisan serve
+```
+
+This will start the development server at `http://localhost:8000`. The server will automatically reload when you make changes to your code.
+
+### Option 2: Using a Web Server (Recommended for Production)
+
+#### Nginx Configuration
 
 Create a new Nginx configuration file at `/etc/nginx/sites-available/life-pharmacy`:
 
@@ -106,7 +120,7 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-### Apache Configuration
+#### Apache Configuration
 
 Create a new Apache configuration file at `/etc/apache2/sites-available/life-pharmacy.conf`:
 
@@ -134,7 +148,8 @@ sudo systemctl restart apache2
 
 ## Accessing the Application
 
-- API: http://localhost/api
+- API: http://localhost:8000/api (if using `php artisan serve`)
+- API: http://localhost/api (if using Nginx/Apache)
 - Database: localhost:3306
 - Redis: localhost:6379
 
