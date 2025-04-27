@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controllers;
 
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Hash;
@@ -11,13 +12,32 @@ class AuthControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_can_register()
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Create roles
+        Role::factory()->create([
+            'name' => 'Administrator',
+            'slug' => 'admin',
+            'description' => 'System Administrator'
+        ]);
+
+        Role::factory()->create([
+            'name' => 'Customer',
+            'slug' => 'customer',
+            'description' => 'Regular Customer'
+        ]);
+    }
+
+    public function test_user_can_register_as_customer()
     {
         $userData = [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Test Customer',
+            'email' => 'customer@example.com',
             'password' => 'password123',
-            'password_confirmation' => 'password123'
+            'password_confirmation' => 'password123',
+            'user_type' => 'customer'
         ];
 
         $response = $this->postJson('/api/register', $userData);
@@ -39,9 +59,49 @@ class AuthControllerTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('users', [
-            'name' => 'Test User',
-            'email' => 'test@example.com'
+            'name' => 'Test Customer',
+            'email' => 'customer@example.com'
         ]);
+
+        $user = User::where('email', 'customer@example.com')->first();
+        $this->assertTrue($user->hasRole('customer'));
+    }
+
+    public function test_user_can_register_as_admin()
+    {
+        $userData = [
+            'name' => 'Test Admin',
+            'email' => 'admin@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'user_type' => 'admin'
+        ];
+
+        $response = $this->postJson('/api/register', $userData);
+
+        $response->assertStatus(201)
+            ->assertJsonStructure([
+                'status',
+                'message',
+                'data' => [
+                    'user' => [
+                        'id',
+                        'name',
+                        'email',
+                        'created_at',
+                        'updated_at'
+                    ],
+                    'token'
+                ]
+            ]);
+
+        $this->assertDatabaseHas('users', [
+            'name' => 'Test Admin',
+            'email' => 'admin@example.com'
+        ]);
+
+        $user = User::where('email', 'admin@example.com')->first();
+        $this->assertTrue($user->hasRole('admin'));
     }
 
     public function test_user_can_login()
@@ -122,7 +182,8 @@ class AuthControllerTest extends TestCase
             'name' => 'Another User',
             'email' => 'test@example.com',
             'password' => 'password123',
-            'password_confirmation' => 'password123'
+            'password_confirmation' => 'password123',
+            'user_type' => 'customer'
         ];
 
         $response = $this->postJson('/api/register', $userData);
@@ -136,6 +197,22 @@ class AuthControllerTest extends TestCase
                 'status' => 'error',
                 'data' => null
             ]);
+    }
+
+    public function test_user_cannot_register_with_invalid_role()
+    {
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'user_type' => 'invalid_role'
+        ];
+
+        $response = $this->postJson('/api/register', $userData);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['user_type']);
     }
 
     public function test_unauthenticated_user_cannot_logout()
