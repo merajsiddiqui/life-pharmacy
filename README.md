@@ -30,6 +30,9 @@ A robust RESTful API for managing a pharmacy's product catalog, built with Larav
 ![API Response](docs/screenshots/api-response.png)
 *Example of API response with localized messages*
 
+![API  Response](docs/screenshots/api-response-2.png)
+*Example of API  response with localized messages*
+
 ### Test Coverage
 ![Test Coverage](docs/screenshots/test-coverage.png)
 *Test coverage report showing comprehensive testing*
