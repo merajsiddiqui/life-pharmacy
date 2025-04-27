@@ -110,4 +110,24 @@ class Product extends Model
     {
         return $this->hasMany(ProductImage::class)->orderBy('order');
     }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'id';
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return mixed
+     */
+    public function getRouteKey()
+    {
+        return $this->id;
+    }
 }

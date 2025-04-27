@@ -36,7 +36,22 @@ class CartService
      */
     public function getCart(int $userId): Cart
     {
-        return $this->cartRepository->getOrCreateCart($userId);
+        $cart = $this->cartRepository->getOrCreateCart($userId);
+        $this->updateCartTotals($cart);
+        return $cart;
+    }
+
+    /**
+     * Update cart totals.
+     *
+     * @param \App\Models\Cart $cart
+     * @return void
+     */
+    protected function updateCartTotals(Cart $cart): void
+    {
+        $cart->load('items');
+        $cart->total_amount = $cart->items->sum('subtotal');
+        $cart->save();
     }
 
     /**
@@ -64,20 +79,32 @@ class CartService
     {
         $product = Product::findOrFail($productId);
         
+        // Check if there's enough stock
+        if ($product->stock < $quantity) {
+            throw new \Exception('Not enough stock available');
+        }
+        
         $existingItem = $cart->items()
             ->where('product_id', $productId)
             ->first();
 
         if ($existingItem) {
-            return $this->updateCartItem($existingItem, $existingItem->quantity + $quantity);
+            $newQuantity = $existingItem->quantity + $quantity;
+            if ($product->stock < $newQuantity) {
+                throw new \Exception('Not enough stock available');
+            }
+            $item = $this->updateCartItem($existingItem, $newQuantity);
+        } else {
+            $item = $this->cartRepository->addItem($cart, [
+                'product_id' => $productId,
+                'quantity' => $quantity,
+                'unit_price' => $product->price,
+                'subtotal' => $product->price * $quantity
+            ]);
         }
 
-        return $this->cartRepository->addItem($cart, [
-            'product_id' => $productId,
-            'quantity' => $quantity,
-            'unit_price' => $product->price,
-            'subtotal' => $product->price * $quantity
-        ]);
+        $this->updateCartTotals($cart);
+        return $item;
     }
 
     /**
@@ -85,11 +112,23 @@ class CartService
      *
      * @param \App\Models\CartItem $item
      * @param int $quantity
-     * @return bool
+     * @return \App\Models\CartItem
      */
-    public function updateCartItem(CartItem $item, int $quantity): bool
+    public function updateCartItem(CartItem $item, int $quantity): CartItem
     {
-        return $this->cartRepository->updateItem($item, $quantity);
+        // Reload the cart item with its relationships
+        $item = CartItem::with(['product', 'cart'])->findOrFail($item->id);
+
+        // Check if there's enough stock
+        if ($item->product->stock < $quantity) {
+            throw new \Exception('Not enough stock available');
+        }
+
+        $item->quantity = $quantity;
+        $item->updateSubtotal();
+        $this->updateCartTotals($item->cart);
+
+        return $item;
     }
 
     /**
@@ -100,7 +139,12 @@ class CartService
      */
     public function removeFromCart(CartItem $item): bool
     {
-        return $this->cartRepository->removeItem($item);
+        $cart = $item->cart;
+        $result = $this->cartRepository->removeItem($item);
+        if ($result) {
+            $this->updateCartTotals($cart);
+        }
+        return $result;
     }
 
     /**
@@ -111,7 +155,11 @@ class CartService
      */
     public function clearCart(Cart $cart): bool
     {
-        return $this->cartRepository->clearCart($cart);
+        $result = $this->cartRepository->clearCart($cart);
+        if ($result) {
+            $this->updateCartTotals($cart);
+        }
+        return $result;
     }
 
     /**

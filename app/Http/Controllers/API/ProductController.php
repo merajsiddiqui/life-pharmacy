@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\CreateProductRequest;
 use App\Http\Requests\Api\UpdateProductRequest;
+use App\Http\Requests\Api\ListProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\ProductCollection;
 use App\Models\Product;
@@ -88,12 +89,12 @@ class ProductController extends Controller
      *     )
      * )
      *
+     * @param ListProductRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(ListProductRequest $request): JsonResponse
     {
-        $filters = request()->only(['category_id']);
-        $products = $this->productService->getAllProducts($filters);
+        $products = $this->productService->getAllProducts($request->validated());
 
         Log::info('Products retrieved successfully');
 

@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class OrderService
 {
@@ -71,5 +72,51 @@ class OrderService
         }
 
         return $order;
+    }
+
+    /**
+     * Get paginated orders for a user.
+     *
+     * @param int $userId
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getOrders(int $userId): LengthAwarePaginator
+    {
+        return Order::where('user_id', $userId)
+            ->with(['items.product'])
+            ->latest()
+            ->paginate(10);
+    }
+
+    /**
+     * Get a specific order.
+     *
+     * @param int $orderId
+     * @param int $userId
+     * @return \App\Models\Order
+     */
+    public function getOrder(int $orderId, int $userId): Order
+    {
+        return Order::where('user_id', $userId)
+            ->with(['items.product'])
+            ->findOrFail($orderId);
+    }
+
+    /**
+     * Update order status.
+     *
+     * @param int $orderId
+     * @param string $status
+     * @param int $userId
+     * @return \App\Models\Order
+     */
+    public function updateOrderStatus(int $orderId, string $status, int $userId): Order
+    {
+        $order = Order::where('user_id', $userId)
+            ->findOrFail($orderId);
+
+        $order->update(['status' => $status]);
+
+        return $order->load('items.product');
     }
 } 

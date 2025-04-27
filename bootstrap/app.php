@@ -83,7 +83,14 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'status' => 'error',
                     'message' => $e->getMessage(),
-                    'data' => null
+                    'data' => null,
+                    'debug' => config('app.debug') ? [
+                    'message' => $e->getMessage(),
+                    'exception' => get_class($e),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace()
+                ] : null
                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         });

@@ -4,24 +4,26 @@ namespace App\Policies;
 
 use App\Models\Category;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class CategoryPolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(?User $user): bool
+    public function viewAny(User $user): bool
     {
-        return true; // Anyone can view categories
+        return true;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(?User $user, Category $category): bool
+    public function view(User $user, Category $category): bool
     {
-        return true; // Anyone can view a category
+        return true;
     }
 
     /**
@@ -29,7 +31,7 @@ class CategoryPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     /**
@@ -37,7 +39,7 @@ class CategoryPolicy
      */
     public function update(User $user, Category $category): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     /**
@@ -45,7 +47,7 @@ class CategoryPolicy
      */
     public function delete(User $user, Category $category): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     /**

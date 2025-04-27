@@ -10,17 +10,21 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     schema="CartResource",
  *     title="Cart Resource",
  *     description="Shopping cart resource representation",
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="user_id", type="integer", example=1),
- *     @OA\Property(property="total", type="number", format="float", example=299.99),
- *     @OA\Property(property="items_count", type="integer", example=3),
  *     @OA\Property(
- *         property="items",
- *         type="array",
- *         @OA\Items(ref="#/components/schemas/CartItemResource")
- *     ),
- *     @OA\Property(property="created_at", type="string", format="date-time"),
- *     @OA\Property(property="updated_at", type="string", format="date-time")
+ *         property="data",
+ *         type="object",
+ *         @OA\Property(
+ *             property="items",
+ *             type="array",
+ *             @OA\Items(ref="#/components/schemas/CartItemResource")
+ *         ),
+ *         @OA\Property(
+ *             property="total_amount",
+ *             type="number",
+ *             format="float",
+ *             example=299.97
+ *         )
+ *     )
  * )
  */
 class CartResource extends JsonResource
@@ -34,13 +38,12 @@ class CartResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'user_id' => $this->user_id,
-            'total' => $this->total,
-            'items_count' => $this->items_count,
-            'items' => CartItemResource::collection($this->whenLoaded('items')),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'data' => [
+                'items' => CartItemResource::collection($this->items),
+                'total_amount' => $this->items->sum(function ($item) {
+                    return $item->quantity * $item->unit_price;
+                })
+            ]
         ];
     }
 } 

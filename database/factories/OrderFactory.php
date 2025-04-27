@@ -17,9 +17,8 @@ class OrderFactory extends Factory
             'total_amount' => $this->faker->randomFloat(2, 100, 10000),
             'status' => $this->faker->randomElement(['pending', 'processing', 'completed', 'cancelled']),
             'shipping_address' => $this->faker->address,
-            'billing_address' => $this->faker->address,
-            'payment_method' => $this->faker->randomElement(['credit_card', 'debit_card', 'cash_on_delivery']),
-            'payment_status' => $this->faker->randomElement(['pending', 'paid', 'failed']),
+            'phone_number' => $this->faker->phoneNumber,
+            'notes' => $this->faker->optional()->sentence
         ];
     }
 } 

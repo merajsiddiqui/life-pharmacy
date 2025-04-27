@@ -91,11 +91,10 @@ class AuthController extends Controller
 
         Log::info('User registered successfully', ['user_id' => $result['user']->id]);
 
-        return $this->resourceResponse(
-            UserResource::make($result['user']),
-            __('auth.messages.registered'),
-            Response::HTTP_CREATED
-        );
+        return $this->successResponse([
+            'user' => UserResource::make($result['user']),
+            'token' => $result['token']
+        ], __('auth.messages.registered'), Response::HTTP_CREATED);
     }
 
     /**

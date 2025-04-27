@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * Test suite for the CartController API endpoints.
@@ -36,20 +37,7 @@ class CartControllerTest extends TestCase
      */
     protected function setTestDatabaseConfig(): void
     {
-        Config::set('database.default', 'mysql_test');
-        Config::set('database.connections.mysql_test', [
-            'driver' => 'mysql',
-            'host' => env('DB_TEST_HOST', '127.0.0.1'),
-            'port' => env('DB_TEST_PORT', '3306'),
-            'database' => env('DB_TEST_DATABASE', 'life_pharmacy_test'),
-            'username' => env('DB_TEST_USERNAME', 'root'),
-            'password' => env('DB_TEST_PASSWORD', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => true,
-            'engine' => null,
-        ]);
+        Config::set('database.default', 'sqlite_testing');
     }
 
     /**
@@ -69,7 +57,10 @@ class CartControllerTest extends TestCase
      */
     public function test_can_get_cart()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
@@ -104,10 +95,15 @@ class CartControllerTest extends TestCase
      */
     public function test_can_add_item_to_cart()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
-        $product = Product::first();
+        $product = Product::factory()->create([
+            'stock' => 10
+        ]);
         $cartData = [
             'product_id' => $product->id,
             'quantity' => 2
@@ -137,10 +133,21 @@ class CartControllerTest extends TestCase
      */
     public function test_can_update_cart_item_quantity()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
-        $cartItem = Cart::where('user_id', $user->id)->first();
+        $product = Product::factory()->create([
+            'stock' => 10
+        ]);
+        $cartItem = CartItem::factory()->create([
+            'user_id' => $user->id,
+            'product_id' => $product->id,
+            'quantity' => 1
+        ]);
+
         $updateData = [
             'quantity' => 3
         ];
@@ -168,10 +175,20 @@ class CartControllerTest extends TestCase
      */
     public function test_can_remove_cart_item()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
-        $cartItem = Cart::where('user_id', $user->id)->first();
+        $product = Product::factory()->create([
+            'stock' => 10
+        ]);
+        $cartItem = CartItem::factory()->create([
+            'user_id' => $user->id,
+            'product_id' => $product->id,
+            'quantity' => 1
+        ]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->deleteJson("/api/cart/items/{$cartItem->id}");
@@ -192,8 +209,20 @@ class CartControllerTest extends TestCase
      */
     public function test_can_clear_cart()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
+
+        $product = Product::factory()->create([
+            'stock' => 10
+        ]);
+        CartItem::factory()->create([
+            'user_id' => $user->id,
+            'product_id' => $product->id,
+            'quantity' => 1
+        ]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->deleteJson('/api/cart');
@@ -213,7 +242,10 @@ class CartControllerTest extends TestCase
      */
     public function test_validates_required_fields_on_add_item()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
@@ -231,13 +263,18 @@ class CartControllerTest extends TestCase
      */
     public function test_validates_product_availability()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
-        $product = Product::first();
+        $product = Product::factory()->create([
+            'stock' => 5
+        ]);
         $cartData = [
             'product_id' => $product->id,
-            'quantity' => $product->stock + 1
+            'quantity' => 6
         ];
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)

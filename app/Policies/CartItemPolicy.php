@@ -4,16 +4,18 @@ namespace App\Policies;
 
 use App\Models\CartItem;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class CartItemPolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return true; // Any authenticated user can view their cart items
+        return true;
     }
 
     /**
@@ -21,7 +23,7 @@ class CartItemPolicy
      */
     public function view(User $user, CartItem $cartItem): bool
     {
-        return $user->isAdmin() || $user->id === $cartItem->cart->user_id;
+        return $user->id === $cartItem->user_id;
     }
 
     /**
@@ -29,7 +31,7 @@ class CartItemPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isCustomer(); // Only customers can create cart items
+        return $user->isCustomer();
     }
 
     /**
@@ -37,7 +39,7 @@ class CartItemPolicy
      */
     public function update(User $user, CartItem $cartItem): bool
     {
-        return $user->id === $cartItem->cart->user_id;
+        return $user->id === $cartItem->user_id;
     }
 
     /**
@@ -45,6 +47,6 @@ class CartItemPolicy
      */
     public function delete(User $user, CartItem $cartItem): bool
     {
-        return $user->id === $cartItem->cart->user_id;
+        return $user->id === $cartItem->user_id;
     }
 } 

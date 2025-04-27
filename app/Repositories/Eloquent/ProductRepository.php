@@ -40,7 +40,22 @@ class ProductRepository implements ProductRepositoryInterface
             $query->where('category_id', $filters['category_id']);
         }
 
-        return $query->paginate(10);
+        if (!empty($filters['search'])) {
+            $query->where(function($q) use ($filters) {
+                $q->where('name', 'like', '%' . $filters['search'] . '%')
+                  ->orWhere('description', 'like', '%' . $filters['search'] . '%');
+            });
+        }
+
+        if (!empty($filters['sort'])) {
+            $order = $filters['order'] ?? 'asc';
+            $query->orderBy($filters['sort'], $order);
+        }
+
+        $perPage = $filters['per_page'] ?? 15;
+        $page = $filters['page'] ?? 1;
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
     /**

@@ -63,12 +63,36 @@ class Handler extends ExceptionHandler
      */
     private function handleApiException($request, Throwable $e): JsonResponse
     {
+        $response = [
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'data' => null
+        ];
+
+        // Add stack trace in debug mode
+        if (config('app.debug')) {
+            $response['debug'] = [
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTrace()
+            ];
+        }
+
         if ($e instanceof ValidationException) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
-                'data' => null
+                'data' => null,
+                'debug' => config('app.debug') ? [
+                    'message' => $e->getMessage(),
+                    'exception' => get_class($e),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace()
+                ] : null
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -113,10 +137,6 @@ class Handler extends ExceptionHandler
         }
 
         // Handle all other exceptions
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-            'data' => null
-        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        return response()->json($response, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 } 

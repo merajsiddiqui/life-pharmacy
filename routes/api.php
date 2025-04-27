@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
@@ -28,6 +29,13 @@ Route::get('/categories/{category}', [CategoryController::class, 'show']);
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    
+    // Cart routes
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart/items', [CartController::class, 'addItem']);
+    Route::put('/cart/items/{product_id}', [CartController::class, 'updateItem']);
+    Route::delete('/cart/items/{product_id}', [CartController::class, 'removeItem']);
+    Route::delete('/cart', [CartController::class, 'clear']);
     
     // Order routes
     Route::get('/orders', [OrderController::class, 'index']);

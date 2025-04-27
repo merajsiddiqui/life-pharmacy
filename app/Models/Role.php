@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Role model representing a user role in the system
  */
 class Role extends Model
 {
+    use HasFactory;
+
     /**
      * The attributes that are mass assignable
      *

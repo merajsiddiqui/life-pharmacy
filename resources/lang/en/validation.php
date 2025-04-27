@@ -50,4 +50,14 @@ return [
     'mimes' => 'The :attribute field must be a file of type: :values',
     'array' => 'The :attribute field must be an array',
     'regex' => 'The :attribute format is invalid',
+    'product_id' => [
+        'required' => 'Please select a product.',
+        'exists' => 'The selected product does not exist.',
+    ],
+    'quantity' => [
+        'required' => 'Please specify the quantity.',
+        'integer' => 'Quantity must be a whole number.',
+        'min' => 'Quantity must be at least 1.',
+        'insufficient' => 'There is not enough quantity available. Only :available items in stock.',
+    ],
 ]; 

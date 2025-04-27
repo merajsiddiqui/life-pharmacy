@@ -38,6 +38,7 @@ class CartRepository implements CartRepositoryInterface
     public function addItem(Cart $cart, array $itemData): CartItem
     {
         $item = $cart->items()->create([
+            'user_id' => $cart->user_id,
             'product_id' => $itemData['product_id'],
             'quantity' => $itemData['quantity'],
             'unit_price' => $itemData['unit_price'],
@@ -47,15 +48,6 @@ class CartRepository implements CartRepositoryInterface
         $cart->updateTotalAmount();
 
         return $item;
-    }
-
-    public function updateItem(CartItem $item, int $quantity): bool
-    {
-        $item->quantity = $quantity;
-        $item->updateSubtotal();
-        $item->cart->updateTotalAmount();
-
-        return true;
     }
 
     public function removeItem(CartItem $item): bool

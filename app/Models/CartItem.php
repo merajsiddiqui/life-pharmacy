@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * 
  * @property int $id
  * @property int $cart_id
+ * @property int $user_id
  * @property int $product_id
  * @property int $quantity
  * @property float $unit_price
@@ -20,9 +22,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon $updated_at
  * @property-read \App\Models\Cart $cart
  * @property-read \App\Models\Product $product
+ * @property-read \App\Models\User $user
  */
 class CartItem extends Model
 {
+    use HasFactory;
+
     /**
      * The attributes that are mass assignable
      *
@@ -30,6 +35,7 @@ class CartItem extends Model
      */
     protected $fillable = [
         'cart_id',
+        'user_id',
         'product_id',
         'quantity',
         'unit_price',
@@ -68,6 +74,16 @@ class CartItem extends Model
     }
 
     /**
+     * Get the user that owns the cart item
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
      * Update the subtotal of the cart item based on quantity and unit price
      *
      * @return void
@@ -76,5 +92,15 @@ class CartItem extends Model
     {
         $this->subtotal = $this->quantity * $this->unit_price;
         $this->save();
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'id';
     }
 }

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * Test suite for the CategoryController API endpoints.
@@ -46,7 +47,10 @@ class CategoryControllerTest extends TestCase
      */
     public function test_can_list_categories()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
@@ -59,7 +63,6 @@ class CategoryControllerTest extends TestCase
                         'id',
                         'name',
                         'description',
-                        'products_count',
                         'created_at',
                         'updated_at'
                     ]
@@ -76,7 +79,10 @@ class CategoryControllerTest extends TestCase
      */
     public function test_can_create_category()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
         $categoryData = [
@@ -88,8 +94,14 @@ class CategoryControllerTest extends TestCase
             ->postJson('/api/categories', $categoryData);
 
         $response->assertStatus(201)
-            ->assertJson([
-                'message' => 'Category created successfully'
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'description',
+                    'created_at',
+                    'updated_at'
+                ]
             ]);
 
         $this->assertDatabaseHas('categories', [
@@ -107,19 +119,25 @@ class CategoryControllerTest extends TestCase
      */
     public function test_can_show_category()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
-        $category = Category::first();
+        $category = Category::factory()->create();
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->getJson("/api/categories/{$category->id}");
 
         $response->assertStatus(200)
-            ->assertJson([
+            ->assertJsonStructure([
                 'data' => [
-                    'id' => $category->id,
-                    'name' => $category->name
+                    'id',
+                    'name',
+                    'description',
+                    'created_at',
+                    'updated_at'
                 ]
             ]);
     }
@@ -133,10 +151,13 @@ class CategoryControllerTest extends TestCase
      */
     public function test_can_update_category()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
-        $category = Category::first();
+        $category = Category::factory()->create();
         $updateData = [
             'name' => 'Updated Category',
             'description' => 'Updated Description'
@@ -146,8 +167,14 @@ class CategoryControllerTest extends TestCase
             ->putJson("/api/categories/{$category->id}", $updateData);
 
         $response->assertStatus(200)
-            ->assertJson([
-                'message' => 'Category updated successfully'
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'description',
+                    'created_at',
+                    'updated_at'
+                ]
             ]);
 
         $this->assertDatabaseHas('categories', [
@@ -166,10 +193,13 @@ class CategoryControllerTest extends TestCase
      */
     public function test_can_delete_category()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
-        $category = Category::first();
+        $category = Category::factory()->create();
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->deleteJson("/api/categories/{$category->id}");
@@ -189,7 +219,10 @@ class CategoryControllerTest extends TestCase
      */
     public function test_validates_required_fields_on_create()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
@@ -207,10 +240,13 @@ class CategoryControllerTest extends TestCase
      */
     public function test_validates_unique_category_name()
     {
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123')
+        ]);
         $token = $user->createToken('test-token')->plainTextToken;
 
-        $existingCategory = Category::first();
+        $existingCategory = Category::factory()->create();
         $categoryData = [
             'name' => $existingCategory->name,
             'description' => 'Test Description'

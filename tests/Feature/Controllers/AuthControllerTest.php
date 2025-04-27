@@ -129,10 +129,12 @@ class AuthControllerTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJson([
-                'message' => 'The email has already been taken.',
+                'message' => 'Validation failed',
                 'errors' => [
                     'email' => ['The email has already been taken.']
-                ]
+                ],
+                'status' => 'error',
+                'data' => null
             ]);
     }
 
@@ -142,7 +144,9 @@ class AuthControllerTest extends TestCase
 
         $response->assertStatus(401)
             ->assertJson([
-                'message' => 'Unauthenticated.'
+                'message' => 'You are not authenticated. Please login to access this resource.',
+                'status' => 'error',
+                'data' => null
             ]);
     }
 } 
